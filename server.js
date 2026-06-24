@@ -30,8 +30,26 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static assets
-app.use(express.static(path.join(__dirname, 'public')));
+// Static assets — served with short cache (1 min) so updates propagate quickly
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1m',
+  etag: false
+}));
+
+// Disable HTML page caching — browsers must always fetch fresh pages
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+// Expose a cache-busting version token (server start time) to all EJS views
+const ASSET_VERSION = Date.now();
+app.use((req, res, next) => {
+  res.locals.v = ASSET_VERSION;
+  next();
+});
 
 // Session
 app.use(session({
