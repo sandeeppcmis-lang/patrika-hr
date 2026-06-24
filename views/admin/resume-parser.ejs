@@ -257,6 +257,13 @@
                 <label class="form-label fw-semibold">Current Location</label>
                 <input type="text" class="form-control" id="s-location" placeholder="City">
               </div>
+              <div class="col-md-12">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-linkedin me-1" style="color:#0a66c2;"></i>LinkedIn Profile URL
+                  <span class="text-muted fw-normal">(optional)</span>
+                </label>
+                <input type="url" class="form-control" id="s-linkedin" placeholder="https://www.linkedin.com/in/yourprofile">
+              </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">Position Applying <span class="text-danger">*</span></label>
                 <select class="form-select" id="s-position">
@@ -379,6 +386,7 @@ function renderResults(d) {
   document.getElementById('s-email').value    = d.email || '';
   document.getElementById('s-phone').value    = d.phone || '';
   document.getElementById('s-location').value = d.location || '';
+  document.getElementById('s-linkedin').value  = d.linkedin || '';
 
   // Show parsed file info in save section
   if (_parsedFile) {
@@ -496,6 +504,7 @@ async function saveCandidate() {
   fd.append('fullName',        fullName);
   fd.append('contactNumber',   contactNumber);
   fd.append('email',           document.getElementById('s-email').value.trim());
+  fd.append('linkedInProfile', document.getElementById('s-linkedin').value.trim());
   fd.append('currentLocation', document.getElementById('s-location').value.trim());
   fd.append('positionApplying', positionApplying);
   fd.append('noticePeriod',    noticePeriod);
