@@ -157,7 +157,7 @@
                   <i class="bi bi-briefcase me-1 text-gold"></i>Position Applying For *
                 </label>
                 <div class="row g-2">
-                  <% const positions = ['FMCG Jaipur','FMCG Rajasthan','FMCG MPCG','Chief Digital Officer','Business Analyst','CTO','Raj Head- Radio','Jaipur Head- Radio','Delhi Head- Print','OOH Delhi','OOH Mumbai','Dy. Raj Head-Print']; %>
+                  <% const positions = ['FMCG Jaipur','FMCG Rajasthan','FMCG MPCG','Chief Digital Officer','Business Analyst','Raj Head- Radio','Jaipur Head- Radio','Delhi Head- Print','OOH Delhi','OOH Mumbai','Dy. Raj Head-Print']; %>
                   <% positions.forEach(pos => { %>
                   <div class="col-md-6 col-lg-4">
                     <input type="radio" class="btn-check" name="positionApplying" id="pos_<%= pos.replace(/\s/g,'_') %>" value="<%= pos %>" required>
@@ -234,6 +234,32 @@
                 <div class="invalid-feedback">Please select your notice period.</div>
               </div>
 
+              <!-- Motivational Questions -->
+              <hr class="my-4">
+              <h6 class="section-title"><i class="bi bi-chat-quote me-2"></i>A Few Questions</h6>
+
+              <div class="mb-4">
+                <label for="whyJoinUs" class="form-label fw-semibold">
+                  Why do you want to join us? <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="whyJoinUs" name="whyJoinUs" rows="4"
+                  placeholder="Share what excites you about Patrika Group and this opportunity..." required
+                  minlength="30" maxlength="2000"></textarea>
+                <div class="form-text text-end"><span id="whyCount">0</span>/2000</div>
+                <div class="invalid-feedback">Please share why you want to join us (min 30 characters).</div>
+              </div>
+
+              <div class="mb-4">
+                <label for="first90DaysPlan" class="form-label fw-semibold">
+                  If selected, what would be your top three priorities during your first 90 days in this role? <span class="text-danger">*</span>
+                </label>
+                <textarea class="form-control" id="first90DaysPlan" name="first90DaysPlan" rows="4"
+                  placeholder="Outline the three key things you would focus on in your first 90 days..." required
+                  minlength="30" maxlength="2000"></textarea>
+                <div class="form-text text-end"><span id="planCount">0</span>/2000</div>
+                <div class="invalid-feedback">Please share your first 90-day priorities (min 30 characters).</div>
+              </div>
+
               <!-- Submit -->
               <div class="d-grid mt-4">
                 <button type="submit" class="btn btn-gold btn-lg" id="submitBtn">
@@ -281,7 +307,6 @@
                 { name: 'FMCG MPCG', dept: 'Sales & Marketing', icon: 'geo-alt' },
                 { name: 'Chief Digital Officer', dept: 'Digital & Technology', icon: 'laptop' },
                 { name: 'Business Analyst', dept: 'Marketing', icon: 'bar-chart' },
-                { name: 'CTO', dept: 'Technology', icon: 'cpu' },
                 { name: 'Raj Head- Radio', dept: 'Radio', icon: 'broadcast' },
                 { name: 'Jaipur Head- Radio', dept: 'Radio', icon: 'broadcast' },
                 { name: 'Delhi Head- Print', dept: 'Print', icon: 'newspaper' },
@@ -398,29 +423,6 @@
             <li><strong>Audience Growth & Engagement:</strong> Optimise organic traffic, paid campaigns, SEO/ASO; drive DAU/MAU growth, session time, user loyalty and churn reduction.</li>
             <li><strong>Monetisation & Innovation:</strong> Develop innovative monetisation models; strengthen ad-tech and mar-tech capabilities; explore subscription strategies, paywalls and bundled offerings.</li>
             <li><strong>Cross-Functional Leadership:</strong> Collaborate with Editorial, Sales, Marketing, Technology, Finance and HR to align goals and drive execution.</li>
-          </ul></div>`
-    },
-
-    'CTO': {
-      badge: 'Media · Technology',
-      html: `
-        <div class="mb-3"><h6 class="fw-bold text-gold mb-1">Role Overview</h6>
-          <p class="mb-0">Lead the end-to-end technology vision, strategy, and execution for the company's digital media platforms — ensuring the subscription-based application performs flawlessly with high-quality video content, seamless UX, and reliable monetisation systems.</p></div>
-        <div class="mb-3"><h6 class="fw-bold text-gold mb-1">Key Responsibilities</h6>
-          <ul class="mb-0 ps-3">
-            <li><strong>Technology Strategy & Vision:</strong> Define and execute the technology roadmap aligned with digital media growth strategy; partner with product, content and business teams to enable innovation.</li>
-            <li><strong>Platform Performance & Reliability:</strong> Ensure high availability, minimal downtime, and consistent app performance; establish comprehensive monitoring, logging and incident management systems.</li>
-            <li><strong>Scalable Infrastructure:</strong> Architect highly scalable, resilient, cost-efficient infrastructure; lead cloud strategy including auto-scaling, load balancing and disaster recovery.</li>
-            <li><strong>Video Delivery:</strong> Optimize end-to-end video streaming — encoding, transcoding, playback; manage CDN strategies for low latency, minimal buffering and adaptive bitrate streaming.</li>
-            <li><strong>Paywall & Subscription Reliability:</strong> Oversee paywall systems, subscription lifecycle management and entitlement services; ensure accurate billing, renewals and access control.</li>
-            <li><strong>Engineering Excellence:</strong> Lead engineering teams to deliver high-quality features at speed; establish agile processes, CI/CD pipelines and DevOps best practices.</li>
-            <li><strong>Security & Compliance:</strong> Ensure platform security, data privacy, and compliance with relevant regulations; implement best practices for secure transactions and user data protection.</li>
-          </ul></div>
-        <div class="mb-0"><h6 class="fw-bold text-gold mb-1">Key KPIs</h6>
-          <ul class="mb-0 ps-3">
-            <li>App Crash Rate: Below 0.5%</li>
-            <li>Optimal Page/App Load Time across all platforms</li>
-            <li>Engineering Release Velocity — high-quality features per quarter</li>
           </ul></div>`
     },
 
@@ -630,6 +632,15 @@
         panel.classList.add('d-none');
       }
     });
+  });
+  // Character counters for motivational questions
+  [['whyJoinUs','whyCount'], ['first90DaysPlan','planCount']
+  ].forEach(([fieldId, countId]) => {
+    const el = document.getElementById(fieldId);
+    const counter = document.getElementById(countId);
+    if (el && counter) {
+      el.addEventListener('input', () => { counter.textContent = el.value.length; });
+    }
   });
   </script>
 </body>

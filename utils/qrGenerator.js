@@ -12,10 +12,10 @@ async function generateQR(url) {
   await QRCode.toFile(QR_OUTPUT_PATH, url, {
     errorCorrectionLevel: 'H',
     type: 'png',
-    width: 300,
-    margin: 2,
+    width: 400,
+    margin: 4,        // Apple recommends ≥4 modules quiet zone for iPhone scanning
     color: {
-      dark: '#1a1a2e',   // dark navy squares
+      dark: '#000000', // pure black — non-black colours can fail iPhone camera
       light: '#FFFFFF'
     }
   });

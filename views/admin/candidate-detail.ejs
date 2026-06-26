@@ -167,6 +167,27 @@
             </div>
           </div>
 
+          <!-- Motivational Questions -->
+          <% if (candidate.whyJoinUs || candidate.first90DaysPlan) { %>
+          <div class="card shadow-sm mb-4">
+            <div class="card-header"><h6 class="mb-0"><i class="bi bi-chat-quote me-2 text-gold"></i>Candidate Responses</h6></div>
+            <div class="card-body">
+              <% if (candidate.whyJoinUs) { %>
+              <div class="mb-3">
+                <label class="detail-label">Why do you want to join us?</label>
+                <div class="detail-value mt-1" style="white-space:pre-wrap;"><%= candidate.whyJoinUs %></div>
+              </div>
+              <% } %>
+              <% if (candidate.first90DaysPlan) { %>
+              <div class="mb-0">
+                <label class="detail-label">Top 3 priorities in first 90 days</label>
+                <div class="detail-value mt-1" style="white-space:pre-wrap;"><%= candidate.first90DaysPlan %></div>
+              </div>
+              <% } %>
+            </div>
+          </div>
+          <% } %>
+
           <!-- Resume Card -->
           <div class="card shadow-sm mb-4">
             <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-earmark-person me-2"></i>Resume / CV</h6></div>

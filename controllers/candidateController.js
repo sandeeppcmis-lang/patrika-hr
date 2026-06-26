@@ -22,7 +22,8 @@ exports.submitForm = async (req, res) => {
     const {
       fullName, contactNumber, email, linkedInProfile, currentLocation,
       positionApplying, noticePeriod,
-      packageFixed, packageVariables, packageOthers
+      packageFixed, packageVariables, packageOthers,
+      whyJoinUs, first90DaysPlan
     } = req.body;
 
     const candidateData = {
@@ -31,6 +32,8 @@ exports.submitForm = async (req, res) => {
       email:           email.trim().toLowerCase(),
       linkedInProfile: (linkedInProfile || '').trim() || null,
       currentLocation: currentLocation.trim(),
+      whyJoinUs:       (whyJoinUs || '').trim() || null,
+      first90DaysPlan: (first90DaysPlan || '').trim() || null,
       positionApplying,
       noticePeriod,
       packageFixed:     parseFloat(packageFixed)     || 0,
