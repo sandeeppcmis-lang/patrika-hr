@@ -293,3 +293,67 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
   .admin-sidebar { display: none; }
   .pipeline-step { min-width: 70px; }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — APPLY FORM
+   ═══════════════════════════════════════════ */
+@media (max-width: 575px) {
+
+  /* Header */
+  .patrika-header .container { padding-left: 12px; padding-right: 12px; }
+  .header-logo { height: 36px; }
+  .patrika-header h5 { font-size: 1rem; }
+
+  /* Hero */
+  .hero-banner .container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+  .hero-title { font-size: 1.5rem; }
+  .hero-sub { font-size: 0.9rem; }
+
+  /* Container padding */
+  .container { padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* Form card */
+  .form-card-header { padding: 1rem !important; }
+  .form-card-header h4 { font-size: 1.1rem; }
+  .card-body.p-4 { padding: 1rem !important; }
+
+  /* All col-md-6 become full width on mobile */
+  .col-md-6 { flex: 0 0 100%; max-width: 100%; }
+
+  /* Position radio buttons — single column on mobile */
+  .col-md-6.col-lg-4 { flex: 0 0 100%; max-width: 100%; }
+
+  /* Drop zone */
+  .drop-zone { padding: 1.25rem 0.75rem; }
+  .drop-zone .fs-1 { font-size: 2rem !important; }
+  .drop-zone p { font-size: 0.85rem; }
+
+  /* Job description panel */
+  #jdPanel .card-body { padding: 0.75rem !important; font-size: 0.85rem; }
+  #jdPanel ul { padding-left: 1.25rem; }
+  #jdPanel li { margin-bottom: 0.3rem; }
+
+  /* Package inputs */
+  .input-group-text { font-size: 0.85rem; padding: 0.35rem 0.6rem; }
+  .form-control { font-size: 0.9rem; }
+
+  /* Submit button */
+  .btn-gold.btn-lg { font-size: 1rem; padding: 0.75rem; }
+
+  /* Right sidebar — stack below form, hide QR on mobile (already on phone) */
+  .col-lg-4 { margin-top: 0.5rem; }
+  #qrCard { display: none !important; }
+
+  /* Motivational textareas */
+  textarea.form-control { font-size: 0.9rem; }
+
+  /* Section titles */
+  .section-title { font-size: 0.8rem; }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .header-logo { height: 40px; }
+  .card-body.p-4 { padding: 1.25rem !important; }
+  .col-md-6.col-lg-4 { flex: 0 0 50%; max-width: 50%; }
+  #qrCard { display: none !important; }
+}
