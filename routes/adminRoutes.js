@@ -55,4 +55,11 @@ router.post('/resume-parser/save',  requireAdmin, diskUpload.single('resume'), a
 // Stats API
 router.get('/api/stats', requireAdmin, adminController.getStats);
 
+// Positions Management
+router.get('/positions',              requireAdmin, adminController.listPositions);
+router.post('/positions',             requireAdmin, adminController.createPosition);
+router.put('/positions/:id',          requireAdmin, adminController.updatePosition);
+router.post('/positions/:id/toggle',  requireAdmin, adminController.togglePosition);
+router.delete('/positions/:id',       requireAdmin, adminController.deletePosition);
+
 module.exports = router;

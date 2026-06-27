@@ -1,4 +1,4 @@
-const { Candidate, Communication, Admin } = require('../models');
+const { Candidate, Communication, Admin, Position } = require('../models');
 const { sequelize } = require('../config/db');
 const { sendEmail } = require('../utils/emailService');
 const { sendWhatsApp } = require('../utils/whatsappService');
@@ -362,6 +362,85 @@ exports.getStats = async (req, res) => {
       Candidate.count({ where: { submittedAt: { [Op.gte]: new Date(Date.now() - 7*24*60*60*1000) } } })
     ]);
     res.json({ byPosition, byStatus, byNotice, recentCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ─── POSITIONS MANAGEMENT ─────────────────────────────────────────────────────
+
+exports.listPositions = async (req, res) => {
+  try {
+    const positions = await Position.findAll({ order: [['sortOrder','ASC'],['name','ASC']] });
+    res.render('admin/positions', {
+      title: 'Manage Positions – Patrika HR',
+      adminName: req.session.adminName,
+      positions,
+      v: res.locals.v
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.createPosition = async (req, res) => {
+  try {
+    const { name, department, icon, badge, jdHtml, sortOrder } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Name is required' });
+    const pos = await Position.create({
+      name: name.trim(), department: (department||'').trim(),
+      icon: (icon||'briefcase').trim(), badge: (badge||'').trim(),
+      jdHtml: (jdHtml||'').trim(), isActive: true,
+      sortOrder: parseInt(sortOrder)||0
+    });
+    res.json({ success: true, position: pos });
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError')
+      return res.status(400).json({ error: 'A position with this name already exists' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updatePosition = async (req, res) => {
+  try {
+    const pos = await Position.findByPk(req.params.id);
+    if (!pos) return res.status(404).json({ error: 'Position not found' });
+    const { name, department, icon, badge, jdHtml, sortOrder } = req.body;
+    await pos.update({
+      name: (name||pos.name).trim(),
+      department: (department !== undefined ? department : pos.department).trim(),
+      icon: (icon || pos.icon).trim(),
+      badge: (badge !== undefined ? badge : pos.badge).trim(),
+      jdHtml: (jdHtml !== undefined ? jdHtml : pos.jdHtml),
+      sortOrder: sortOrder !== undefined ? parseInt(sortOrder)||0 : pos.sortOrder,
+      updatedAt: new Date()
+    });
+    res.json({ success: true, position: pos });
+  } catch (err) {
+    if (err.name === 'SequelizeUniqueConstraintError')
+      return res.status(400).json({ error: 'A position with this name already exists' });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.togglePosition = async (req, res) => {
+  try {
+    const pos = await Position.findByPk(req.params.id);
+    if (!pos) return res.status(404).json({ error: 'Position not found' });
+    await pos.update({ isActive: !pos.isActive, updatedAt: new Date() });
+    res.json({ success: true, isActive: pos.isActive });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deletePosition = async (req, res) => {
+  try {
+    const pos = await Position.findByPk(req.params.id);
+    if (!pos) return res.status(404).json({ error: 'Position not found' });
+    await pos.destroy();
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

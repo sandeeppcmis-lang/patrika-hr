@@ -1,4 +1,4 @@
-const { Candidate } = require('../models');
+const { Candidate, Position } = require('../models');
 const { parseResume } = require('../utils/resumeParser');
 const { sendEmail, applicationReceivedTemplate } = require('../utils/emailService');
 const { qrExists, generateQR } = require('../utils/qrGenerator');
@@ -9,10 +9,15 @@ exports.showForm = async (req, res) => {
     const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
     generateQR(`${appUrl}/apply`).catch(console.error);
   }
+  const positions = await Position.findAll({
+    where: { isActive: true },
+    order: [['sortOrder','ASC'],['name','ASC']]
+  });
   res.render('form', {
     title: 'Apply Now – Patrika HR',
     success: req.query.success,
-    error: req.query.error
+    error: req.query.error,
+    positions
   });
 };
 
