@@ -157,7 +157,7 @@
                   <i class="bi bi-briefcase me-1 text-gold"></i>Position Applying For *
                 </label>
                 <div class="row g-2">
-                  <% const positions = ['FMCG Jaipur','FMCG Rajasthan','FMCG MPCG','Business Analyst','Raj Head- Radio','Jaipur Head- Radio','Delhi Head- Print','OOH Delhi','OOH Mumbai','Dy. Raj Head-Print','VP Finance','VP IT & Transformation','Chartered Accountant','B2B Marketing Research']; %>
+                  <% const positions = ['Sales and Distribution Head Jaipur','Sales and Distribution Head Raj','Sales and Distribution Head MPCG','Business Analyst','Raj Head- Radio','Jaipur Head- Radio','Delhi Head- Print','OOH Delhi','OOH Mumbai','Dy. Raj Head-Print','VP Finance','VP IT & Transformation','Chartered Accountant','B2B Marketing Research']; %>
                   <% positions.forEach(pos => { %>
                   <div class="col-md-6 col-lg-4">
                     <input type="radio" class="btn-check" name="positionApplying" id="pos_<%= pos.replace(/\s/g,'_') %>" value="<%= pos %>" required>
@@ -302,9 +302,9 @@
           <div class="card-body p-0">
             <ul class="list-group list-group-flush">
               <% const posDetails = [
-                { name: 'FMCG Jaipur', dept: 'Sales & Marketing', icon: 'geo-alt' },
-                { name: 'FMCG Rajasthan', dept: 'Sales & Marketing', icon: 'geo-alt' },
-                { name: 'FMCG MPCG', dept: 'Sales & Marketing', icon: 'geo-alt' },
+                { name: 'Sales and Distribution Head Jaipur', dept: 'Sales & Distribution', icon: 'geo-alt' },
+                { name: 'Sales and Distribution Head Raj', dept: 'Sales & Distribution', icon: 'geo-alt' },
+                { name: 'Sales and Distribution Head MPCG', dept: 'Sales & Distribution', icon: 'geo-alt' },
                 { name: 'Business Analyst', dept: 'Marketing', icon: 'bar-chart' },
                 { name: 'Raj Head- Radio', dept: 'Radio', icon: 'broadcast' },
                 { name: 'Jaipur Head- Radio', dept: 'Radio', icon: 'broadcast' },
@@ -364,7 +364,7 @@
   // â”€â”€ Job Descriptions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const JOB_DESCRIPTIONS = {
 
-    'FMCG Jaipur': {
+    'Sales and Distribution Head Jaipur': {
       badge: 'Jaipur, Rajasthan · Full-Time · 6 Days/Week',
       html: `
         <div class="mb-3"><h6 class="fw-bold text-gold mb-1">Role Overview</h6>
@@ -380,7 +380,7 @@
           </ul></div>`
     },
 
-    'FMCG Rajasthan': {
+    'Sales and Distribution Head Raj': {
       badge: 'Rajasthan – All Areas · Full-Time · 6 Days/Week',
       html: `
         <div class="mb-3"><h6 class="fw-bold text-gold mb-1">Role Overview</h6>
@@ -396,7 +396,7 @@
           </ul></div>`
     },
 
-    'FMCG MPCG': {
+    'Sales and Distribution Head MPCG': {
       badge: 'Madhya Pradesh / Chhattisgarh · Full-Time · 6 Days/Week',
       html: `
         <div class="mb-3"><h6 class="fw-bold text-gold mb-1">Role Overview</h6>
