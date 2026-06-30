@@ -3,6 +3,7 @@ const Communication = require('./Communication');
 const Admin = require('./Admin');
 const Position = require('./Position');
 const CandidateDetailForm = require('./CandidateDetailForm');
+const ManpowerRequisition = require('./ManpowerRequisition');
 
 // Associations
 Candidate.hasMany(Communication, { foreignKey: 'candidateId', as: 'communications', onDelete: 'CASCADE' });
@@ -10,4 +11,4 @@ Communication.belongsTo(Candidate, { foreignKey: 'candidateId' });
 Candidate.hasOne(CandidateDetailForm, { foreignKey: 'candidateId', as: 'detailForm', onDelete: 'CASCADE' });
 CandidateDetailForm.belongsTo(Candidate, { foreignKey: 'candidateId' });
 
-module.exports = { Candidate, Communication, Admin, Position, CandidateDetailForm };
+module.exports = { Candidate, Communication, Admin, Position, CandidateDetailForm, ManpowerRequisition };

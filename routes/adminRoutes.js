@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const adminController    = require('../controllers/adminController');
 const detailFormController = require('../controllers/detailFormController');
+const requisitionController = require('../controllers/requisitionController');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 
 const path = require('path');
@@ -73,5 +74,11 @@ router.post('/positions',             requireAdmin, adminController.createPositi
 router.put('/positions/:id',          requireAdmin, adminController.updatePosition);
 router.post('/positions/:id/toggle',  requireAdmin, adminController.togglePosition);
 router.delete('/positions/:id',       requireAdmin, adminController.deletePosition);
+
+// Manpower Requisitions
+router.post('/requisitions/send-form',   requireAdmin, requisitionController.sendFormToEmail);
+router.get('/requisitions',              requireAdmin, requisitionController.listRequisitions);
+router.get('/requisitions/:id',          requireAdmin, requisitionController.requisitionDetail);
+router.post('/requisitions/:id/status',  requireAdmin, requisitionController.updateStatus);
 
 module.exports = router;

@@ -55,8 +55,10 @@ const Candidate = sequelize.define('Candidate', {
   first90DaysPlan: { type: DataTypes.TEXT },
 
   // AI grading
-  grade:      { type: DataTypes.STRING(2) },
-  gradeScore: { type: DataTypes.INTEGER },
+  grade:       { type: DataTypes.STRING(2) },
+  gradeScore:  { type: DataTypes.INTEGER },
+  gradeReason: { type: DataTypes.TEXT },
+  gradeSource: { type: DataTypes.STRING(20) },
 
   // ── Virtuals (keep view templates unchanged from MongoDB version) ────────────
 

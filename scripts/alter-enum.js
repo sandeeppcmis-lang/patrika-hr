@@ -19,7 +19,9 @@ async function run() {
     "ALTER TABLE candidates ADD COLUMN first90DaysPlan TEXT AFTER whyJoinUs",
     // Add grading columns
     "ALTER TABLE candidates ADD COLUMN grade VARCHAR(2) DEFAULT NULL AFTER first90DaysPlan",
-    "ALTER TABLE candidates ADD COLUMN gradeScore INT DEFAULT NULL AFTER grade"
+    "ALTER TABLE candidates ADD COLUMN gradeScore INT DEFAULT NULL AFTER grade",
+    "ALTER TABLE candidates ADD COLUMN gradeReason TEXT DEFAULT NULL AFTER gradeScore",
+    "ALTER TABLE candidates ADD COLUMN gradeSource VARCHAR(20) DEFAULT NULL AFTER gradeReason"
   ];
 
   for (const sql of alterations) {

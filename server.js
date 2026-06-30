@@ -4,9 +4,10 @@ const session    = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const path       = require('path');
 const { connectDB } = require('./config/db');
-const candidateRoutes  = require('./routes/candidateRoutes');
-const adminRoutes      = require('./routes/adminRoutes');
-const detailFormRoutes = require('./routes/detailFormRoutes');
+const candidateRoutes    = require('./routes/candidateRoutes');
+const adminRoutes        = require('./routes/adminRoutes');
+const detailFormRoutes   = require('./routes/detailFormRoutes');
+const requisitionRoutes  = require('./routes/requisitionRoutes');
 const { generateQR }   = require('./utils/qrGenerator');
 
 const app = express();
@@ -60,6 +61,7 @@ app.use(session({
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/', candidateRoutes);
 app.use('/', detailFormRoutes);
+app.use('/', requisitionRoutes);
 app.use('/admin', adminRoutes);
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
