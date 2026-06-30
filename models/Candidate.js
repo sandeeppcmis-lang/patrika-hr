@@ -54,6 +54,10 @@ const Candidate = sequelize.define('Candidate', {
   whyJoinUs:       { type: DataTypes.TEXT },
   first90DaysPlan: { type: DataTypes.TEXT },
 
+  // AI grading
+  grade:      { type: DataTypes.STRING(2) },
+  gradeScore: { type: DataTypes.INTEGER },
+
   // ── Virtuals (keep view templates unchanged from MongoDB version) ────────────
 
   currentPackage: {

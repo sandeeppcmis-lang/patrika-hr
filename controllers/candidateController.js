@@ -2,6 +2,7 @@ const { Candidate, Position } = require('../models');
 const { parseResume } = require('../utils/resumeParser');
 const { sendEmail, applicationReceivedTemplate } = require('../utils/emailService');
 const { qrExists, generateQR } = require('../utils/qrGenerator');
+const { computeGrade } = require('../utils/grader');
 
 // GET /apply
 exports.showForm = async (req, res) => {
@@ -58,23 +59,29 @@ exports.submitForm = async (req, res) => {
 
     const candidate = await Candidate.create(candidateData);
 
-    // Parse resume asynchronously — don't block response
+    // Parse resume + auto-grade asynchronously — don't block response
     if (req.file) {
       parseResume(req.file.path, req.file.mimetype)
-        .then(parsed => Candidate.update({
-          parsedName:              parsed.name,
-          parsedEmail:             parsed.email,
-          parsedPhone:             parsed.phone,
-          parsedLocation:          parsed.location,
-          parsedSkills:            JSON.stringify(parsed.skills || []),
-          parsedLinkedIn:          parsed.linkedin || null,
-          parsedSummary:           parsed.summary || null,
-          parsedTotalExperience:   parsed.totalExperience || null,
-          parsedCurrentRole:       parsed.currentRole || null,
-          parsedExperienceEntries: JSON.stringify(parsed.experienceEntries || []),
-          parsedEducation:         JSON.stringify(parsed.education || []),
-          parsedRawText:           parsed.rawText
-        }, { where: { id: candidate.id } }))
+        .then(async parsed => {
+          const parsedFields = {
+            parsedName:              parsed.name,
+            parsedEmail:             parsed.email,
+            parsedPhone:             parsed.phone,
+            parsedLocation:          parsed.location,
+            parsedSkills:            JSON.stringify(parsed.skills || []),
+            parsedLinkedIn:          parsed.linkedin || null,
+            parsedSummary:           parsed.summary || null,
+            parsedTotalExperience:   parsed.totalExperience || null,
+            parsedCurrentRole:       parsed.currentRole || null,
+            parsedExperienceEntries: JSON.stringify(parsed.experienceEntries || []),
+            parsedEducation:         JSON.stringify(parsed.education || []),
+            parsedRawText:           parsed.rawText
+          };
+          // Compute grade against JD
+          const pos = await Position.findOne({ where: { name: positionApplying } }).catch(() => null);
+          const { grade, score } = computeGrade({ ...parsedFields, parsedRawText: parsed.rawText }, pos ? pos.jdHtml : '');
+          await Candidate.update({ ...parsedFields, grade, gradeScore: score }, { where: { id: candidate.id } });
+        })
         .catch(err => console.error('Parse save error:', err.message));
     }
 

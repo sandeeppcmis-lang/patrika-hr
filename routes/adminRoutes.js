@@ -55,6 +55,13 @@ router.post('/resume-parser/save',  requireAdmin, diskUpload.single('resume'), a
 // Stats API
 router.get('/api/stats', requireAdmin, adminController.getStats);
 
+// Excel Export
+router.get('/candidates/export', requireAdmin, adminController.exportCandidates);
+
+// Grading
+router.post('/candidates/grade-all', requireAdmin, adminController.gradeAll);
+router.post('/candidate/:id/grade',  requireAdmin, adminController.gradeOne);
+
 // Positions Management
 router.get('/positions',              requireAdmin, adminController.listPositions);
 router.post('/positions',             requireAdmin, adminController.createPosition);

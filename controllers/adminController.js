@@ -3,6 +3,8 @@ const { sequelize } = require('../config/db');
 const { sendEmail } = require('../utils/emailService');
 const { sendWhatsApp } = require('../utils/whatsappService');
 const { Op } = require('sequelize');
+const XLSX = require('xlsx');
+const { computeGrade } = require('../utils/grader');
 const path = require('path');
 const fs   = require('fs');
 const bcrypt = require('bcryptjs');
@@ -74,7 +76,7 @@ exports.dashboard = async (req, res) => {
     const safeSort  = SAFE_SORT_COLS.includes(sort) ? sort : 'submittedAt';
     const safeOrder = order === 'asc' ? 'ASC' : 'DESC';
 
-    const [{ rows: candidates, count: total }, statusRows] = await Promise.all([
+    const [{ rows: candidates, count: total }, statusRows, allPositions] = await Promise.all([
       Candidate.findAndCountAll({
         where,
         order: [[safeSort, safeOrder]],
@@ -85,7 +87,8 @@ exports.dashboard = async (req, res) => {
       sequelize.query(
         `SELECT status, COUNT(*) as count FROM candidates GROUP BY status`,
         { type: sequelize.QueryTypes.SELECT }
-      )
+      ),
+      Position.findAll({ order: [['sortOrder','ASC'],['name','ASC']] })
     ]);
 
     const statusCounts = {};
@@ -99,7 +102,8 @@ exports.dashboard = async (req, res) => {
       totalPages: Math.ceil(total / limit),
       query:      req.query,
       statusCounts,
-      adminName:  req.session.adminName
+      adminName:  req.session.adminName,
+      allPositions
     });
   } catch (err) {
     console.error(err);
@@ -362,6 +366,113 @@ exports.getStats = async (req, res) => {
       Candidate.count({ where: { submittedAt: { [Op.gte]: new Date(Date.now() - 7*24*60*60*1000) } } })
     ]);
     res.json({ byPosition, byStatus, byNotice, recentCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ─── EXCEL EXPORT ─────────────────────────────────────────────────────────────
+
+exports.exportCandidates = async (req, res) => {
+  try {
+    const { search, status, position } = req.query;
+    const where = {};
+    if (search) {
+      where[Op.or] = [
+        { fullName:      { [Op.like]: `%${search}%` } },
+        { email:         { [Op.like]: `%${search}%` } },
+        { contactNumber: { [Op.like]: `%${search}%` } }
+      ];
+    }
+    if (status)   where.status           = status;
+    if (position) where.positionApplying = position;
+
+    const candidates = await Candidate.findAll({ where, order: [['submittedAt','DESC']] });
+
+    const rows = candidates.map((c, i) => {
+      const pkg = (parseFloat(c.packageFixed)||0) + (parseFloat(c.packageVariables)||0) + (parseFloat(c.packageOthers)||0);
+      let skills = '';
+      try { const s = c.parsedSkills ? JSON.parse(c.parsedSkills) : []; skills = Array.isArray(s) ? s.join(', ') : s; } catch(e){}
+      return {
+        '#':               i + 1,
+        'Name':            c.fullName,
+        'Position':        c.positionApplying,
+        'Grade':           c.grade || '—',
+        'Grade Score':     c.gradeScore != null ? c.gradeScore : '—',
+        'Email':           c.email,
+        'Mobile':          c.contactNumber,
+        'LinkedIn':        c.linkedInProfile || '',
+        'Current Location': c.currentLocation,
+        'Parsed Location': c.parsedLocation || '',
+        'Notice Period':   c.noticePeriod,
+        'Total Package (L)': pkg.toFixed(2),
+        'Fixed (L)':       parseFloat(c.packageFixed||0).toFixed(2),
+        'Variable (L)':    parseFloat(c.packageVariables||0).toFixed(2),
+        'Others (L)':      parseFloat(c.packageOthers||0).toFixed(2),
+        'Experience':      c.parsedTotalExperience || '',
+        'Current Role':    c.parsedCurrentRole || '',
+        'Skills':          skills,
+        'Summary':         c.parsedSummary || '',
+        'Status':          c.status,
+        'Applied On':      c.submittedAt ? new Date(c.submittedAt).toLocaleDateString('en-IN') : '',
+        'Why Join Us':     c.whyJoinUs || '',
+        'First 90 Days':   c.first90DaysPlan || ''
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    // Auto column widths
+    const colWidths = Object.keys(rows[0] || {}).map(k => ({ wch: Math.max(k.length, 18) }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    const filename = `candidates_${new Date().toISOString().split('T')[0]}.xlsx`;
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buf);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Export failed: ' + err.message);
+  }
+};
+
+// ─── GRADING ──────────────────────────────────────────────────────────────────
+
+exports.gradeAll = async (req, res) => {
+  try {
+    const [candidates, positions] = await Promise.all([
+      Candidate.findAll(),
+      Position.findAll()
+    ]);
+    const posMap = {};
+    positions.forEach(p => { posMap[p.name] = p.jdHtml || ''; });
+
+    let updated = 0;
+    for (const c of candidates) {
+      const jd = posMap[c.positionApplying] || '';
+      const { grade, score } = computeGrade(c, jd);
+      await c.update({ grade, gradeScore: score, updatedAt: new Date() });
+      updated++;
+    }
+    res.json({ success: true, updated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.gradeOne = async (req, res) => {
+  try {
+    const c = await Candidate.findByPk(req.params.id);
+    if (!c) return res.status(404).json({ error: 'Not found' });
+    const pos = await Position.findOne({ where: { name: c.positionApplying } });
+    const jd = pos ? (pos.jdHtml || '') : '';
+    const { grade, score, matchedKeywords } = computeGrade(c, jd);
+    await c.update({ grade, gradeScore: score, updatedAt: new Date() });
+    res.json({ success: true, grade, score, matchedKeywords });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

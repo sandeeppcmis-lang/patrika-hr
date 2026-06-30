@@ -16,7 +16,10 @@ async function run() {
     "ALTER TABLE candidates MODIFY COLUMN positionApplying ENUM('Sales and Distribution Head Jaipur','Sales and Distribution Head Raj','Sales and Distribution Head MPCG','Business Analyst','Raj Head- Radio','Jaipur Head- Radio','Delhi Head- Print','OOH Delhi','OOH Mumbai','Dy. Raj Head-Print','VP Finance','VP IT & Transformation','Chartered Accountant','B2B Marketing Research','Business Head-Jaipur','Business Head-MP') NOT NULL",
     // Add motivational question columns
     "ALTER TABLE candidates ADD COLUMN whyJoinUs TEXT AFTER adminNotes",
-    "ALTER TABLE candidates ADD COLUMN first90DaysPlan TEXT AFTER whyJoinUs"
+    "ALTER TABLE candidates ADD COLUMN first90DaysPlan TEXT AFTER whyJoinUs",
+    // Add grading columns
+    "ALTER TABLE candidates ADD COLUMN grade VARCHAR(2) DEFAULT NULL AFTER first90DaysPlan",
+    "ALTER TABLE candidates ADD COLUMN gradeScore INT DEFAULT NULL AFTER grade"
   ];
 
   for (const sql of alterations) {
