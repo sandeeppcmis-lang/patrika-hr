@@ -78,7 +78,7 @@
           <div class="row g-3">
             <% if (form.photoPath) { %>
             <div class="col-md-2 text-center">
-              <img src="/uploads/photos/<%= require('path').basename(form.photoPath) %>" style="width:110px;height:140px;object-fit:cover;border:2px solid #ddd;border-radius:6px;" alt="Photo">
+              <img src="/uploads/photos/<%= form.photoPath.split(/[\\/]/).pop() %>" style="width:110px;height:140px;object-fit:cover;border:2px solid #ddd;border-radius:6px;" alt="Photo">
             </div>
             <div class="col-md-10">
             <% } else { %>
