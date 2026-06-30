@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -35,6 +35,8 @@
       <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
       <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/positions"><i class="bi bi-briefcase-fill me-2"></i>Positions</a></li>
       <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/requisitions"><i class="bi bi-clipboard-check-fill me-2"></i>Requisitions</a></li>
+      <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/talent-analyst"><i class="bi bi-robot me-2"></i>Talent Analyst</a></li>
+      <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/resume-parser"><i class="bi bi-file-earmark-text me-2"></i>Resume Parser</a></li>
     </ul>
     <div class="px-2 pb-3">
       <a href="/admin/logout" class="btn btn-outline-light btn-sm w-100"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
@@ -46,7 +48,7 @@
     <div class="admin-topbar d-flex align-items-center justify-content-between no-print">
       <div class="d-flex align-items-center gap-2">
         <a href="/admin/candidate/<%= candidate.id %>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
-        <h5 class="mb-0 fw-bold"><i class="bi bi-file-person me-2 text-gold"></i>Personal Detail Form – <%= candidate.fullName %></h5>
+        <h5 class="mb-0 fw-bold"><i class="bi bi-file-person me-2 text-gold"></i>Personal Detail Form â€“ <%= candidate.fullName %></h5>
       </div>
       <div class="d-flex gap-2">
         <span class="badge bg-success px-3 py-2" style="font-size:.85rem;">
@@ -64,9 +66,9 @@
         <div class="df-body">
           <div class="row g-3">
             <div class="col-md-3"><p class="df-label">Position</p><p class="df-value"><%= candidate.positionApplying %></p></div>
-            <div class="col-md-3"><p class="df-label">Total Experience</p><p class="df-value"><%= form.totalExperience || '—' %></p></div>
-            <div class="col-md-3"><p class="df-label">Joining Period</p><p class="df-value"><%= form.joiningPeriod || '—' %></p></div>
-            <div class="col-md-3"><p class="df-label">Department</p><p class="df-value"><%= form.department || '—' %></p></div>
+            <div class="col-md-3"><p class="df-label">Total Experience</p><p class="df-value"><%= form.totalExperience || 'â€”' %></p></div>
+            <div class="col-md-3"><p class="df-label">Joining Period</p><p class="df-value"><%= form.joiningPeriod || 'â€”' %></p></div>
+            <div class="col-md-3"><p class="df-label">Department</p><p class="df-value"><%= form.department || 'â€”' %></p></div>
           </div>
         </div>
       </div>
@@ -85,20 +87,20 @@
             <div class="col-12">
             <% } %>
               <div class="row g-2">
-                <div class="col-md-3"><p class="df-label">Gender</p><p class="df-value"><%= form.gender||'—' %></p></div>
-                <div class="col-md-3"><p class="df-label">Date of Birth</p><p class="df-value"><%= form.dob||'—' %></p></div>
-                <div class="col-md-2"><p class="df-label">Age</p><p class="df-value"><%= form.age||'—' %></p></div>
-                <div class="col-md-4"><p class="df-label">Domicile</p><p class="df-value"><%= form.domicile||'—' %></p></div>
-                <div class="col-md-4"><p class="df-label">Marital Status</p><p class="df-value"><%= form.maritalStatus||'—' %></p></div>
+                <div class="col-md-3"><p class="df-label">Gender</p><p class="df-value"><%= form.gender||'â€”' %></p></div>
+                <div class="col-md-3"><p class="df-label">Date of Birth</p><p class="df-value"><%= form.dob||'â€”' %></p></div>
+                <div class="col-md-2"><p class="df-label">Age</p><p class="df-value"><%= form.age||'â€”' %></p></div>
+                <div class="col-md-4"><p class="df-label">Domicile</p><p class="df-value"><%= form.domicile||'â€”' %></p></div>
+                <div class="col-md-4"><p class="df-label">Marital Status</p><p class="df-value"><%= form.maritalStatus||'â€”' %></p></div>
                 <div class="col-md-4"><p class="df-label">Contact No.</p><p class="df-value"><%= candidate.contactNumber %></p></div>
                 <div class="col-md-4"><p class="df-label">Email</p><p class="df-value"><%= candidate.email %></p></div>
-                <div class="col-md-4"><p class="df-label">Father's Name</p><p class="df-value"><%= form.fatherName||'—' %></p></div>
-                <div class="col-md-4"><p class="df-label">Father's Contact</p><p class="df-value"><%= form.fatherContact||'—' %></p></div>
-                <div class="col-md-4"><p class="df-label">Spouse's Name</p><p class="df-value"><%= form.spouseName||'—' %></p></div>
-                <div class="col-md-4"><p class="df-label">Spouse's Contact</p><p class="df-value"><%= form.spouseContact||'—' %></p></div>
-                <div class="col-md-6"><p class="df-label">Present Address</p><p class="df-value" style="white-space:pre-wrap;"><%= form.presentAddress||'—' %></p></div>
-                <div class="col-md-6"><p class="df-label">Permanent Address</p><p class="df-value" style="white-space:pre-wrap;"><%= form.permanentAddress||'—' %></p></div>
-                <div class="col-md-6"><p class="df-label">ID Number (Aadhar/PAN/Passport)</p><p class="df-value"><%= form.idNumber||'—' %></p></div>
+                <div class="col-md-4"><p class="df-label">Father's Name</p><p class="df-value"><%= form.fatherName||'â€”' %></p></div>
+                <div class="col-md-4"><p class="df-label">Father's Contact</p><p class="df-value"><%= form.fatherContact||'â€”' %></p></div>
+                <div class="col-md-4"><p class="df-label">Spouse's Name</p><p class="df-value"><%= form.spouseName||'â€”' %></p></div>
+                <div class="col-md-4"><p class="df-label">Spouse's Contact</p><p class="df-value"><%= form.spouseContact||'â€”' %></p></div>
+                <div class="col-md-6"><p class="df-label">Present Address</p><p class="df-value" style="white-space:pre-wrap;"><%= form.presentAddress||'â€”' %></p></div>
+                <div class="col-md-6"><p class="df-label">Permanent Address</p><p class="df-value" style="white-space:pre-wrap;"><%= form.permanentAddress||'â€”' %></p></div>
+                <div class="col-md-6"><p class="df-label">ID Number (Aadhar/PAN/Passport)</p><p class="df-value"><%= form.idNumber||'â€”' %></p></div>
               </div>
             </div>
           </div>
@@ -119,19 +121,19 @@
                 <% qualifications.forEach(q => { %>
                 <tr>
                   <td><%= q.degree %></td>
-                  <td><%= q.institution||'—' %></td>
-                  <td><%= q.board||'—' %></td>
-                  <td><%= q.yearOfPassing||'—' %></td>
-                  <td><%= q.subject||'—' %></td>
-                  <td><%= q.percentage||'—' %></td>
+                  <td><%= q.institution||'â€”' %></td>
+                  <td><%= q.board||'â€”' %></td>
+                  <td><%= q.yearOfPassing||'â€”' %></td>
+                  <td><%= q.subject||'â€”' %></td>
+                  <td><%= q.percentage||'â€”' %></td>
                 </tr>
                 <% }) %>
               </tbody>
             </table>
           </div>
           <div class="row g-3 mt-1">
-            <div class="col-md-6"><p class="df-label">IT Skills</p><p class="df-value"><%= form.itSkills||'—' %></p></div>
-            <div class="col-md-6"><p class="df-label">Professional Training / Courses</p><p class="df-value"><%= form.professionalTraining||'—' %></p></div>
+            <div class="col-md-6"><p class="df-label">IT Skills</p><p class="df-value"><%= form.itSkills||'â€”' %></p></div>
+            <div class="col-md-6"><p class="df-label">Professional Training / Courses</p><p class="df-value"><%= form.professionalTraining||'â€”' %></p></div>
           </div>
         </div>
       </div>
@@ -150,20 +152,20 @@
                 <% experiences.forEach(e => { %>
                 <tr>
                   <td style="white-space:pre-wrap;"><%= e.employer %></td>
-                  <td><%= e.fromDate||'—' %></td>
-                  <td><%= e.toDate||'—' %></td>
-                  <td><%= e.position||'—' %></td>
-                  <td><%= e.typeOfWork||'—' %></td>
-                  <td><%= e.reasonLeaving||'—' %></td>
-                  <td><%= e.annualCtc||'—' %></td>
+                  <td><%= e.fromDate||'â€”' %></td>
+                  <td><%= e.toDate||'â€”' %></td>
+                  <td><%= e.position||'â€”' %></td>
+                  <td><%= e.typeOfWork||'â€”' %></td>
+                  <td><%= e.reasonLeaving||'â€”' %></td>
+                  <td><%= e.annualCtc||'â€”' %></td>
                 </tr>
                 <% }) %>
               </tbody>
             </table>
           </div>
           <div class="row g-2 mt-1">
-            <div class="col-12"><p class="df-label">Employment Gap</p><p class="df-value"><%= form.employmentGap||'—' %></p></div>
-            <div class="col-md-6"><p class="df-label">Engagement Term with Present Employer</p><p class="df-value"><%= form.engagementTerm ? 'Yes – '+form.engagementTermDetails : 'No' %></p></div>
+            <div class="col-12"><p class="df-label">Employment Gap</p><p class="df-value"><%= form.employmentGap||'â€”' %></p></div>
+            <div class="col-md-6"><p class="df-label">Engagement Term with Present Employer</p><p class="df-value"><%= form.engagementTerm ? 'Yes â€“ '+form.engagementTermDetails : 'No' %></p></div>
             <div class="col-md-6"><p class="df-label">Can Contact Present Employer</p><p class="df-value"><%= form.canContactEmployer ? 'Yes' : 'No' %></p></div>
           </div>
         </div>
@@ -174,12 +176,12 @@
         <div class="df-title">Present Remuneration</div>
         <div class="df-body">
           <div class="row g-2 mb-3">
-            <div class="col-md-4"><p class="df-label">Last Salary Revision</p><p class="df-value"><%= form.lastSalaryRevision||'—' %></p></div>
-            <div class="col-md-4"><p class="df-label">Next Salary Revision</p><p class="df-value"><%= form.nextSalaryRevision||'—' %></p></div>
+            <div class="col-md-4"><p class="df-label">Last Salary Revision</p><p class="df-value"><%= form.lastSalaryRevision||'â€”' %></p></div>
+            <div class="col-md-4"><p class="df-label">Next Salary Revision</p><p class="df-value"><%= form.nextSalaryRevision||'â€”' %></p></div>
           </div>
           <div class="table-responsive">
             <table class="table table-bordered df-table">
-              <thead><tr><th>Component</th><th>Amount (₹/month)</th><th>Statutory</th><th>Amount (₹/month)</th></tr></thead>
+              <thead><tr><th>Component</th><th>Amount (â‚¹/month)</th><th>Statutory</th><th>Amount (â‚¹/month)</th></tr></thead>
               <tbody>
                 <% const salMap = [
                   ['Basic', form.salBasic, 'PF', form.statPF],
@@ -195,17 +197,17 @@
                 %>
                 <% salMap.forEach(r => { %>
                 <tr>
-                  <td><%= r[0] %></td><td><%= r[1] ? '₹'+parseFloat(r[1]).toLocaleString() : '—' %></td>
-                  <td><%= r[2] %></td><td><%= r[3] ? '₹'+parseFloat(r[3]).toLocaleString() : '—' %></td>
+                  <td><%= r[0] %></td><td><%= r[1] ? 'â‚¹'+parseFloat(r[1]).toLocaleString() : 'â€”' %></td>
+                  <td><%= r[2] %></td><td><%= r[3] ? 'â‚¹'+parseFloat(r[3]).toLocaleString() : 'â€”' %></td>
                 </tr>
                 <% }) %>
                 <tr class="table-light fw-bold">
-                  <td>Total A</td><td>₹<%= totalA.toLocaleString() %></td>
-                  <td>Total B</td><td>₹<%= totalB.toLocaleString() %></td>
+                  <td>Total A</td><td>â‚¹<%= totalA.toLocaleString() %></td>
+                  <td>Total B</td><td>â‚¹<%= totalB.toLocaleString() %></td>
                 </tr>
                 <tr class="table-warning fw-bold">
                   <td colspan="3">CTC Per Annum</td>
-                  <td>₹<%= form.ctcPerAnnum ? parseFloat(form.ctcPerAnnum).toLocaleString() : ((totalA+totalB)*12).toLocaleString() %></td>
+                  <td>â‚¹<%= form.ctcPerAnnum ? parseFloat(form.ctcPerAnnum).toLocaleString() : ((totalA+totalB)*12).toLocaleString() %></td>
                 </tr>
               </tbody>
             </table>
@@ -224,7 +226,7 @@
               <tbody>
                 <% if (personalReferences.length === 0) { %><tr><td colspan="4" class="text-muted text-center">None</td></tr><% } %>
                 <% personalReferences.forEach(r => { %>
-                <tr><td><%= r.name %></td><td><%= r.relation||'—' %></td><td><%= r.location||'—' %></td><td><%= r.contact||'—' %></td></tr>
+                <tr><td><%= r.name %></td><td><%= r.relation||'â€”' %></td><td><%= r.location||'â€”' %></td><td><%= r.contact||'â€”' %></td></tr>
                 <% }) %>
               </tbody>
             </table>
@@ -236,7 +238,7 @@
               <tbody>
                 <% if (employmentReferences.length === 0) { %><tr><td colspan="5" class="text-muted text-center">None</td></tr><% } %>
                 <% employmentReferences.forEach(r => { %>
-                <tr><td><%= r.name %></td><td><%= r.affiliation||'—' %></td><td><%= r.department||'—' %></td><td><%= r.location||'—' %></td><td><%= r.contact||'—' %></td></tr>
+                <tr><td><%= r.name %></td><td><%= r.affiliation||'â€”' %></td><td><%= r.department||'â€”' %></td><td><%= r.location||'â€”' %></td><td><%= r.contact||'â€”' %></td></tr>
                 <% }) %>
               </tbody>
             </table>
@@ -267,12 +269,12 @@
                   <td><%= r[0] %></td>
                   <td class="text-center">
                     <% if (r[1] === null || r[1] === undefined) { %>
-                    <span class="text-muted">—</span>
+                    <span class="text-muted">â€”</span>
                     <% } else { %>
                     <span class="badge bg-<%= r[1] ? 'warning text-dark' : 'secondary' %>"><%= r[1] ? 'Yes' : 'No' %></span>
                     <% } %>
                   </td>
-                  <td><%= r[2] || '—' %></td>
+                  <td><%= r[2] || 'â€”' %></td>
                 </tr>
                 <% }) %>
               </tbody>
@@ -312,7 +314,7 @@
                   <thead><tr><th>Name</th><th>Department</th><th>Location</th><th>Contact</th></tr></thead>
                   <tbody>
                     <% patrikaKnown.forEach(p => { %>
-                    <tr><td><%= p.name %></td><td><%= p.department||'—' %></td><td><%= p.location||'—' %></td><td><%= p.contact||'—' %></td></tr>
+                    <tr><td><%= p.name %></td><td><%= p.department||'â€”' %></td><td><%= p.location||'â€”' %></td><td><%= p.contact||'â€”' %></td></tr>
                     <% }) %>
                   </tbody>
                 </table>

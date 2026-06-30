@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -53,8 +53,10 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link sidebar-link" href="/admin/talent-analyst"><i class="bi bi-robot me-2"></i>Talent Analyst</a></li>
-      <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/resume-parser">
+        <a class="nav-link sidebar-link" href="/admin/talent-analyst"><i class="bi bi-robot me-2"></i>Talent Analyst</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link sidebar-link" href="/admin/resume-parser">
           <i class="bi bi-file-earmark-text me-2"></i>Resume Parser
         </a>
       </li>
@@ -139,11 +141,11 @@
                       </div>
                     </div>
                   </td>
-                  <td><span class="badge bg-light text-dark border badge-pill"><%= pos.department || '—' %></span></td>
-                  <td><small class="text-muted"><%= pos.badge || '—' %></small></td>
+                  <td><span class="badge bg-light text-dark border badge-pill"><%= pos.department || 'â€”' %></span></td>
+                  <td><small class="text-muted"><%= pos.badge || 'â€”' %></small></td>
                   <td>
                     <% if (pos.jdHtml && pos.jdHtml.trim()) { %>
-                      <div class="jd-preview"><%- pos.jdHtml.replace(/<[^>]+>/g,'').substring(0,120) %>…</div>
+                      <div class="jd-preview"><%- pos.jdHtml.replace(/<[^>]+>/g,'').substring(0,120) %>â€¦</div>
                     <% } else { %>
                       <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>No JD</span>
                     <% } %>
@@ -183,7 +185,7 @@
   </main>
 </div>
 
-<!-- ── Add Position Modal ─────────────────────────────────────── -->
+<!-- â”€â”€ Add Position Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal fade" id="addModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
@@ -212,7 +214,7 @@
           </div>
           <div class="col-12">
             <label class="form-label fw-semibold">Badge Text</label>
-            <input type="text" class="form-control" id="add-badge" placeholder="e.g. Jaipur · Full-Time · 5+ Yrs">
+            <input type="text" class="form-control" id="add-badge" placeholder="e.g. Jaipur Â· Full-Time Â· 5+ Yrs">
           </div>
           <div class="col-12">
             <label class="form-label fw-semibold">Job Description (HTML)</label>
@@ -236,7 +238,7 @@
   </div>
 </div>
 
-<!-- ── Edit Position Modal ───────────────────────────────────── -->
+<!-- â”€â”€ Edit Position Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal fade" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
@@ -290,7 +292,7 @@
   </div>
 </div>
 
-<!-- ── Delete Confirm Modal ──────────────────────────────────── -->
+<!-- â”€â”€ Delete Confirm Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -337,7 +339,7 @@ function previewJd(mode) {
   area.style.display = html.trim() ? 'block' : 'none';
 }
 
-// ── Toggle active ──────────────────────────────────────────
+// â”€â”€ Toggle active â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.querySelectorAll('.toggle-active').forEach(el => {
   el.addEventListener('change', async function() {
     const id = this.dataset.id;
@@ -364,7 +366,7 @@ function updateCounts() {
   document.getElementById('totalCount').textContent = checks.length;
 }
 
-// ── Edit ───────────────────────────────────────────────────
+// â”€â”€ Edit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.querySelectorAll('.edit-btn').forEach(btn => {
   btn.addEventListener('click', function() {
     document.getElementById('edit-id').value    = this.dataset.id;
@@ -406,7 +408,7 @@ document.getElementById('editSaveBtn').addEventListener('click', async function(
   this.disabled = false;
 });
 
-// ── Add ────────────────────────────────────────────────────
+// â”€â”€ Add â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.getElementById('addSaveBtn').addEventListener('click', async function() {
   const body = {
     name:       document.getElementById('add-name').value.trim(),
@@ -433,7 +435,7 @@ document.getElementById('addSaveBtn').addEventListener('click', async function()
   this.disabled = false;
 });
 
-// ── Delete ─────────────────────────────────────────────────
+// â”€â”€ Delete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let deleteId = null;
 document.querySelectorAll('.delete-btn').forEach(btn => {
   btn.addEventListener('click', function() {

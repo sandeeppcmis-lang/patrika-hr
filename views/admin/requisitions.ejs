@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -52,8 +52,10 @@
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link sidebar-link" href="/admin/talent-analyst"><i class="bi bi-robot me-2"></i>Talent Analyst</a></li>
-      <li class="nav-item"><a class="nav-link sidebar-link" href="/admin/resume-parser">
+        <a class="nav-link sidebar-link" href="/admin/talent-analyst"><i class="bi bi-robot me-2"></i>Talent Analyst</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link sidebar-link" href="/admin/resume-parser">
           <i class="bi bi-file-earmark-text me-2"></i>Resume Parser
         </a>
       </li>
@@ -190,7 +192,7 @@
                   </td>
                   <td class="text-center"><strong><%= r.noOfRequirements %></strong></td>
                   <td><%= r.requestedByName %></td>
-                  <td class="text-muted"><%= r.requestedDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN') : '–') %></td>
+                  <td class="text-muted"><%= r.requestedDate || (r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN') : 'â€“') %></td>
                   <td>
                     <% if (r.status === 'Pending') { %>
                       <span class="badge bg-warning text-dark">Pending</span>
