@@ -1,11 +1,8 @@
 require('dotenv').config();
 const express    = require('express');
-const https      = require('https');
-const http       = require('http');
 const session    = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const path       = require('path');
-const fs         = require('fs');
 const { connectDB } = require('./config/db');
 const candidateRoutes  = require('./routes/candidateRoutes');
 const adminRoutes      = require('./routes/adminRoutes');
@@ -13,12 +10,6 @@ const detailFormRoutes = require('./routes/detailFormRoutes');
 const { generateQR }   = require('./utils/qrGenerator');
 
 const app = express();
-
-// ── SSL certificate (generated via: openssl req -x509 ..., stored in certs/) ─
-const sslOptions = {
-  key:  fs.readFileSync(path.join(__dirname, 'certs', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'certs', 'cert.pem'))
-};
 
 // ── MySQL session store ───────────────────────────────────────────────────────
 const sessionStore = new MySQLStore({
@@ -44,18 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1m', etag: false }));
 app.use('/uploads/photos', express.static(path.join(__dirname, 'uploads/photos')));
 
-// ── Redirect HTTP → HTTPS ─────────────────────────────────────────────────────
-const HTTP_PORT  = parseInt(process.env.HTTP_PORT)  || 4080;
-const HTTPS_PORT = parseInt(process.env.PORT)        || 4000;
-
-http.createServer((req, res) => {
-  const host = req.headers.host ? req.headers.host.replace(`:${HTTP_PORT}`, `:${HTTPS_PORT}`) : req.headers.host;
-  res.writeHead(301, { Location: `https://${host}${req.url}` });
-  res.end();
-}).listen(HTTP_PORT, () => {
-  console.log(`  HTTP → HTTPS redirect on port ${HTTP_PORT}`);
-});
-
 // ── No-cache middleware ───────────────────────────────────────────────────────
 app.use((req, res, next) => {
   if (req.path.endsWith('/preview')) return next();
@@ -75,7 +54,7 @@ app.use(session({
   resave:            false,
   saveUninitialized: false,
   store:             sessionStore,
-  cookie: { maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true }
+  cookie: { maxAge: 24 * 60 * 60 * 1000, httpOnly: true }
 }));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
@@ -94,16 +73,17 @@ app.use((err, req, res, next) => {
   res.status(500).send(`<h2>Server Error</h2><pre>${err.message}</pre>`);
 });
 
-// ── Start HTTPS server ────────────────────────────────────────────────────────
-const APP_URL = process.env.APP_URL || `https://localhost:${HTTPS_PORT}`;
+// ── Start server ──────────────────────────────────────────────────────────────
+const PORT    = parseInt(process.env.PORT) || 4000;
+const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
 
 connectDB().then(async () => {
-  https.createServer(sslOptions, app).listen(HTTPS_PORT, async () => {
+  app.listen(PORT, '0.0.0.0', async () => {
     console.log(`\n========================================`);
-    console.log(`  Patrika HR System (HTTPS)`);
-    console.log(`  App URL   : ${APP_URL}`);
-    console.log(`  Form URL  : ${APP_URL}/apply`);
-    console.log(`  Admin URL : ${APP_URL}/admin`);
+    console.log(`  Patrika HR System running`);
+    console.log(`  Local   : http://localhost:${PORT}/admin`);
+    console.log(`  Network : ${APP_URL}/admin`);
+    console.log(`  Form    : ${APP_URL}/apply`);
     console.log(`========================================\n`);
 
     try {
