@@ -1,4 +1,4 @@
-const { Candidate, Communication, Admin, Position, CandidateDetailForm, ActivityLog } = require('../models');
+const { Candidate, Communication, Admin, Position, CandidateDetailForm, ManpowerRequisition, InterviewSheet, ActivityLog } = require('../models');
 const { sequelize } = require('../config/db');
 const { sendEmail } = require('../utils/emailService');
 const { sendWhatsApp } = require('../utils/whatsappService');
@@ -51,11 +51,66 @@ exports.logout = (req, res) => {
   req.session.destroy(() => res.redirect('/admin/login'));
 };
 
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+// ─── DASHBOARD (Overview & Analytics) ────────────────────────────────────────
 
 exports.dashboard = async (req, res) => {
   try {
-    const { search, status, position, sort = 'submittedAt', order = 'desc', page = 1 } = req.query;
+    const [statusRows, positionRows, todayRows, recentCandidates, recentActivity, totalRow] = await Promise.all([
+      sequelize.query(
+        `SELECT status, COUNT(*) as count FROM candidates GROUP BY status`,
+        { type: sequelize.QueryTypes.SELECT }
+      ),
+      sequelize.query(
+        `SELECT positionApplying as position, COUNT(*) as count FROM candidates GROUP BY positionApplying ORDER BY count DESC LIMIT 5`,
+        { type: sequelize.QueryTypes.SELECT }
+      ),
+      sequelize.query(
+        `SELECT COUNT(*) as count FROM candidates WHERE DATE(submittedAt) = CURDATE()`,
+        { type: sequelize.QueryTypes.SELECT }
+      ),
+      Candidate.findAll({
+        order: [['submittedAt', 'DESC']],
+        limit: 8,
+        attributes: ['id', 'fullName', 'email', 'positionApplying', 'grade', 'status', 'submittedAt']
+      }),
+      ActivityLog.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: 8,
+        include: [{ model: Candidate, as: 'candidate', attributes: ['fullName', 'id'] }]
+      }),
+      sequelize.query(
+        `SELECT COUNT(*) as count FROM candidates`,
+        { type: sequelize.QueryTypes.SELECT }
+      )
+    ]);
+
+    const statusCounts = {};
+    statusRows.forEach(r => { statusCounts[r.status] = parseInt(r.count); });
+
+    const newToday = parseInt(todayRows[0].count) || 0;
+    const total    = parseInt(totalRow[0].count)  || 0;
+
+    res.render('admin/dashboard', {
+      title:            'Dashboard – Patrika HR',
+      adminName:        req.session.adminName,
+      statusCounts,
+      positionCounts:   positionRows,
+      newToday,
+      recentCandidates,
+      recentActivity,
+      total
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error: ' + err.message);
+  }
+};
+
+// ─── CANDIDATES LIST ──────────────────────────────────────────────────────────
+
+exports.candidatesList = async (req, res) => {
+  try {
+    const { search, status, position, grade, sort = 'submittedAt', order = 'desc', page = 1, dateFrom, dateTo } = req.query;
     const limit  = 20;
     const offset = (parseInt(page) - 1) * limit;
 
@@ -70,9 +125,15 @@ exports.dashboard = async (req, res) => {
     }
     if (status)   where.status           = status;
     if (position) where.positionApplying = position;
+    if (grade)    where.grade            = grade;
+    if (dateFrom || dateTo) {
+      where.submittedAt = {};
+      if (dateFrom) where.submittedAt[Op.gte] = new Date(dateFrom);
+      if (dateTo)   where.submittedAt[Op.lte] = new Date(dateTo + 'T23:59:59');
+    }
 
     // Validate sort column to prevent SQL injection
-    const SAFE_SORT_COLS = ['fullName','email','submittedAt','status','positionApplying'];
+    const SAFE_SORT_COLS = ['fullName','email','submittedAt','status','positionApplying','grade'];
     const safeSort  = SAFE_SORT_COLS.includes(sort) ? sort : 'submittedAt';
     const safeOrder = order === 'asc' ? 'ASC' : 'DESC';
 
@@ -94,8 +155,8 @@ exports.dashboard = async (req, res) => {
     const statusCounts = {};
     statusRows.forEach(r => { statusCounts[r.status] = parseInt(r.count); });
 
-    res.render('admin/dashboard', {
-      title: 'Admin Dashboard – Patrika HR',
+    res.render('admin/candidates', {
+      title:      'Candidates – Patrika HR',
       candidates,
       total,
       page:       parseInt(page),

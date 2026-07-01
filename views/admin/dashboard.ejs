@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,10 +7,22 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/css/style.css?v=<%= v %>" rel="stylesheet">
+  <style>
+    .kpi-card { border-radius:12px; padding:20px 18px; color:#fff; display:flex; align-items:center; gap:16px; }
+    .kpi-icon { font-size:2rem; opacity:.85; }
+    .kpi-value { font-size:2rem; font-weight:700; line-height:1; }
+    .kpi-label { font-size:.75rem; opacity:.85; text-transform:uppercase; letter-spacing:.04em; }
+    .kpi-trend { font-size:.7rem; margin-top:2px; }
+    .activity-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+    .recent-row:hover { background: rgba(212,175,55,.06); cursor:pointer; }
+    .quick-action-card { border-radius:12px; padding:20px; text-align:center; transition:transform .15s,box-shadow .15s; cursor:pointer; text-decoration:none; color:inherit; display:block; }
+    .quick-action-card:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,.18); color:inherit; }
+    .quick-action-card .qa-icon { font-size:1.8rem; margin-bottom:8px; }
+    .quick-action-card .qa-label { font-size:.8rem; font-weight:600; }
+  </style>
 </head>
 <body class="admin-page">
 
-  <!-- Sidebar + Main Layout -->
   <div class="admin-wrapper">
 
     <!-- Sidebar -->
@@ -79,391 +91,368 @@
           <a href="/apply" target="_blank" class="btn btn-sm btn-outline-gold">
             <i class="bi bi-box-arrow-up-right me-1"></i>View Form
           </a>
-          <a href="/admin/candidates/export?<%= new URLSearchParams(query).toString() %>" class="btn btn-sm btn-outline-success">
-            <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+          <a href="/admin/candidates" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-people me-1"></i>All Candidates
           </a>
-          <button class="btn btn-sm btn-outline-secondary" id="gradeAllBtn" title="Re-grade all candidates based on JD match">
-            <i class="bi bi-stars me-1"></i>Re-grade All
-          </button>
         </div>
       </div>
 
       <div class="p-4">
 
-        <!-- Stats Cards -->
+        <%
+          // ── KPI helpers ────────────────────────────────────────────────────
+          const sc = statusCounts || {};
+          const shortlisted        = sc['Shortlisted']        || 0;
+          const interviewScheduled = sc['Interview Scheduled'] || 0;
+          const offerExtended      = sc['Offer Extended']      || 0;
+          const hired              = sc['Hired']               || 0;
+        %>
+
+        <!-- KPI Row (6 cards) -->
         <div class="row g-3 mb-4">
-          <% const statusList = ['New','Screening','Shortlisted','Interview Scheduled','Offer Extended','Hired','Rejected'];
-             const statusColors = { New:'primary', Screening:'info', Shortlisted:'warning', 'Interview Scheduled':'purple', 'Offer Extended':'orange', Hired:'success', Rejected:'danger' };
-             const statusIcons = { New:'inbox', Screening:'search', Shortlisted:'star', 'Interview Scheduled':'calendar-check', 'Offer Extended':'envelope-check', Hired:'person-check', Rejected:'x-circle' };
-          %>
-          <div class="col-6 col-md-3">
-            <div class="stat-card bg-dark text-white">
-              <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
-              <div class="stat-value"><%= total %></div>
-              <div class="stat-label">Total Applicants</div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">
+              <div>
+                <div class="kpi-icon"><i class="bi bi-people-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value"><%= total %></div>
+                <div class="kpi-label">Total Applicants</div>
+              </div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="stat-card bg-success text-white">
-              <div class="stat-icon"><i class="bi bi-person-check-fill"></i></div>
-              <div class="stat-value"><%= statusCounts['Hired'] || 0 %></div>
-              <div class="stat-label">Hired</div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#0d6efd,#0a58ca);">
+              <div>
+                <div class="kpi-icon"><i class="bi bi-inbox-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value"><%= newToday %></div>
+                <div class="kpi-label">New Today</div>
+                <div class="kpi-trend"><i class="bi bi-arrow-up-short"></i>fresh</div>
+              </div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="stat-card bg-warning">
-              <div class="stat-icon"><i class="bi bi-star-fill"></i></div>
-              <div class="stat-value"><%= statusCounts['Shortlisted'] || 0 %></div>
-              <div class="stat-label">Shortlisted</div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#ffc107,#e0a800);color:#1a1a1a!important;">
+              <div>
+                <div class="kpi-icon" style="color:#1a1a1a;"><i class="bi bi-star-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value" style="color:#1a1a1a;"><%= shortlisted %></div>
+                <div class="kpi-label" style="color:#333;">Shortlisted</div>
+              </div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="stat-card stat-card-gold">
-              <div class="stat-icon"><i class="bi bi-inbox-fill"></i></div>
-              <div class="stat-value"><%= statusCounts['New'] || 0 %></div>
-              <div class="stat-label">New Applications</div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#6f42c1,#5a32a3);">
+              <div>
+                <div class="kpi-icon"><i class="bi bi-calendar-check-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value"><%= interviewScheduled %></div>
+                <div class="kpi-label">Interview</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#fd7e14,#e8680e);">
+              <div>
+                <div class="kpi-icon"><i class="bi bi-envelope-check-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value"><%= offerExtended %></div>
+                <div class="kpi-label">Offer Extended</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-2">
+            <div class="kpi-card" style="background:linear-gradient(135deg,#198754,#146c43);">
+              <div>
+                <div class="kpi-icon"><i class="bi bi-person-check-fill"></i></div>
+              </div>
+              <div>
+                <div class="kpi-value"><%= hired %></div>
+                <div class="kpi-label">Hired</div>
+                <div class="kpi-trend"><i class="bi bi-arrow-up-short"></i>converted</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Status Pipeline -->
-        <div class="card shadow-sm mb-4">
-          <div class="card-header"><h6 class="mb-0"><i class="bi bi-funnel me-2"></i>Recruitment Pipeline</h6></div>
-          <div class="card-body">
-            <div class="pipeline-bar">
-              <% statusList.forEach(s => { %>
-              <a href="/admin/dashboard?status=<%= encodeURIComponent(s) %>"
-                class="pipeline-step <%= query.status === s ? 'active' : '' %>"
-                title="<%= s %>: <%= statusCounts[s] || 0 %>">
-                <span class="step-count"><%= statusCounts[s] || 0 %></span>
-                <span class="step-label"><%= s %></span>
-              </a>
-              <% }) %>
+        <!-- Charts Row -->
+        <div class="row g-3 mb-4">
+          <!-- Doughnut: Status Distribution -->
+          <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-pie-chart-fill me-2 text-gold"></i>Status Distribution</h6>
+              </div>
+              <div class="card-body d-flex align-items-center justify-content-center" style="min-height:260px;">
+                <canvas id="statusChart" style="max-height:240px;"></canvas>
+              </div>
+            </div>
+          </div>
+          <!-- Bar: Top 5 Positions -->
+          <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-bar-chart-fill me-2 text-gold"></i>Top Positions by Applicants</h6>
+              </div>
+              <div class="card-body d-flex align-items-center" style="min-height:260px;">
+                <canvas id="positionChart" style="width:100%;max-height:230px;"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Filters & Search -->
-        <div class="card shadow-sm mb-3">
-          <div class="card-body py-3">
-            <form method="GET" action="/admin/dashboard" class="row g-2 align-items-end">
-              <div class="col-md-4">
-                <input type="text" class="form-control form-control-sm" name="search"
-                  placeholder="Search name, email, phone..." value="<%= query.search || '' %>">
-              </div>
-              <div class="col-md-3">
-                <select class="form-select form-select-sm" name="status">
-                  <option value="">All Statuses</option>
-                  <% statusList.forEach(s => { %>
-                  <option value="<%= s %>" <%= query.status === s ? 'selected' : '' %>><%= s %></option>
-                  <% }) %>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <select class="form-select form-select-sm" name="position">
-                  <option value="">All Positions</option>
-                  <% allPositions.forEach(p => { %>
-                  <option value="<%= p.name %>" <%= query.position === p.name ? 'selected' : '' %>><%= p.name %></option>
-                  <% }) %>
-                </select>
-              </div>
-              <div class="col-md-2 d-flex gap-1">
-                <button type="submit" class="btn btn-sm btn-gold flex-fill">
-                  <i class="bi bi-search"></i> Filter
-                </button>
-                <a href="/admin/dashboard" class="btn btn-sm btn-outline-secondary">
-                  <i class="bi bi-x"></i>
+        <!-- Recent Applications + Activity Feed -->
+        <div class="row g-3 mb-4">
+          <!-- Recent Applications (col-lg-8) -->
+          <div class="col-lg-8">
+            <div class="card shadow-sm">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-clock-history me-2 text-gold"></i>Recent Applications</h6>
+                <a href="/admin/candidates" class="btn btn-xs btn-outline-secondary btn-sm">
+                  View All <i class="bi bi-arrow-right ms-1"></i>
                 </a>
               </div>
-            </form>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size:.85rem;">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Candidate</th>
+                      <th>Position</th>
+                      <th class="text-center">Grade</th>
+                      <th>Status</th>
+                      <th>Applied</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (!recentCandidates || recentCandidates.length === 0) { %>
+                    <tr><td colspan="5" class="text-center text-muted py-4">No candidates yet.</td></tr>
+                    <% } %>
+                    <%
+                      const sColor = { New:'primary', Screening:'info', Shortlisted:'warning', 'Interview Scheduled':'secondary', 'Offer Extended':'dark', Hired:'success', Rejected:'danger' };
+                      const gc = { A:'success', B:'primary', C:'warning', D:'danger' };
+                    %>
+                    <% recentCandidates.forEach(c => { %>
+                    <tr class="recent-row" onclick="window.location='/admin/candidate/<%= c.id %>'" style="cursor:pointer;">
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="avatar-circle" style="width:32px;height:32px;font-size:.8rem;">
+                            <%= c.fullName.charAt(0).toUpperCase() %>
+                          </div>
+                          <div>
+                            <div class="fw-semibold" style="font-size:.83rem;"><%= c.fullName %></div>
+                            <div class="text-muted" style="font-size:.72rem;"><%= c.email %></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="badge bg-dark" style="font-size:.72rem;"><%= c.positionApplying %></span></td>
+                      <td class="text-center">
+                        <% if (c.grade) { %>
+                        <span class="badge bg-<%= gc[c.grade]||'secondary' %> px-2"><%= c.grade %></span>
+                        <% } else { %>
+                        <span class="text-muted">—</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <span class="badge bg-<%= sColor[c.status]||'secondary' %>"><%= c.status %></span>
+                      </td>
+                      <td class="text-muted" style="font-size:.75rem;">
+                        <%
+                          function timeAgo(d) {
+                            const diff = (Date.now() - new Date(d)) / 1000;
+                            if (diff < 60)    return Math.floor(diff) + 's ago';
+                            if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
+                            if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+                            return Math.floor(diff/86400) + 'd ago';
+                          }
+                        %>
+                        <%= timeAgo(c.submittedAt) %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity Feed (col-lg-4) -->
+          <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-activity me-2 text-gold"></i>Recent Activity</h6>
+              </div>
+              <div class="card-body p-0">
+                <%
+                  const activityColors = {
+                    application_received:   '#0d6efd',
+                    status_changed:         '#ffc107',
+                    note_saved:             '#6c757d',
+                    email_sent:             '#0dcaf0',
+                    whatsapp_sent:          '#25d366',
+                    interview_updated:      '#6f42c1',
+                    detail_form_submitted:  '#198754'
+                  };
+                  const activityIcons = {
+                    application_received:   'bi-inbox-fill',
+                    status_changed:         'bi-arrow-left-right',
+                    note_saved:             'bi-journal-text',
+                    email_sent:             'bi-envelope-fill',
+                    whatsapp_sent:          'bi-whatsapp',
+                    interview_updated:      'bi-calendar-event-fill',
+                    detail_form_submitted:  'bi-person-lines-fill'
+                  };
+                %>
+                <% if (!recentActivity || recentActivity.length === 0) { %>
+                <div class="text-center text-muted py-5 px-3">
+                  <i class="bi bi-clock-history display-6 d-block mb-2"></i>No activity yet.
+                </div>
+                <% } else { %>
+                <ul class="list-unstyled mb-0" style="font-size:.82rem;">
+                  <% recentActivity.forEach((log, idx) => { %>
+                  <li class="d-flex gap-3 px-3 py-2 <%= idx < recentActivity.length-1 ? 'border-bottom' : '' %>">
+                    <div class="activity-dot mt-1" style="background:<%= activityColors[log.activityType]||'#6c757d' %>;"></div>
+                    <div class="flex-grow-1" style="min-width:0;">
+                      <div class="d-flex align-items-center gap-1 mb-1">
+                        <i class="bi <%= activityIcons[log.activityType]||'bi-circle' %>"
+                           style="color:<%= activityColors[log.activityType]||'#6c757d' %>;font-size:.85rem;"></i>
+                        <span class="fw-semibold text-truncate"><%= log.title || log.activityType.replace(/_/g,' ') %></span>
+                      </div>
+                      <% if (log.candidate) { %>
+                      <div class="text-muted text-truncate">
+                        <a href="/admin/candidate/<%= log.candidate.id %>" class="text-decoration-none text-muted">
+                          <i class="bi bi-person me-1"></i><%= log.candidate.fullName %>
+                        </a>
+                      </div>
+                      <% } %>
+                      <div class="text-muted" style="font-size:.7rem;">
+                        <%
+                          function timeAgoAct(d) {
+                            const diff = (Date.now() - new Date(d)) / 1000;
+                            if (diff < 60)    return Math.floor(diff) + 's ago';
+                            if (diff < 3600)  return Math.floor(diff/60) + 'm ago';
+                            if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+                            return Math.floor(diff/86400) + 'd ago';
+                          }
+                        %>
+                        <i class="bi bi-clock me-1"></i><%= timeAgoAct(log.createdAt) %>
+                      </div>
+                    </div>
+                  </li>
+                  <% }) %>
+                </ul>
+                <% } %>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Candidates Table -->
+        <!-- Quick Actions -->
         <div class="card shadow-sm">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="bi bi-table me-2"></i>Candidates (<%= total %>)</h6>
-            <small class="text-muted">Page <%= page %> of <%= totalPages %></small>
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-lightning-charge-fill me-2 text-gold"></i>Quick Actions</h6>
           </div>
-
-          <!-- Bulk Download Toolbar -->
-          <div id="bulkToolbar" class="d-none d-flex align-items-center gap-3 p-2 mx-3 mt-2"
-               style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;">
-            <span class="fw-semibold small"><span id="selectedCount">0</span> selected</span>
-            <button class="btn btn-sm btn-warning" onclick="openBulkDownload()">
-              <i class="bi bi-archive me-1"></i>Download Documents
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
-              <i class="bi bi-x me-1"></i>Clear
-            </button>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <a href="/admin/requisitions" class="quick-action-card bg-dark text-white">
+                  <div class="qa-icon"><i class="bi bi-clipboard-plus-fill text-warning"></i></div>
+                  <div class="qa-label">New Requisition</div>
+                </a>
+              </div>
+              <div class="col-6 col-md-3">
+                <a href="/admin/resume-parser" class="quick-action-card bg-dark text-white">
+                  <div class="qa-icon"><i class="bi bi-file-earmark-text-fill text-info"></i></div>
+                  <div class="qa-label">Resume Parser</div>
+                </a>
+              </div>
+              <div class="col-6 col-md-3">
+                <a href="/admin/talent-analyst" class="quick-action-card bg-dark text-white">
+                  <div class="qa-icon"><i class="bi bi-robot text-success"></i></div>
+                  <div class="qa-label">AI Talent Analyst</div>
+                </a>
+              </div>
+              <div class="col-6 col-md-3">
+                <a href="/admin/candidates/export" class="quick-action-card bg-dark text-white">
+                  <div class="qa-icon"><i class="bi bi-file-earmark-excel-fill text-warning"></i></div>
+                  <div class="qa-label">Export Excel</div>
+                </a>
+              </div>
+            </div>
           </div>
-
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-dark">
-                <tr>
-                  <th style="width:36px;"><input type="checkbox" id="selectAllCandidates" class="form-check-input" title="Select all on this page"></th>
-                  <th>#</th>
-                  <th>Candidate</th>
-                  <th>Position</th>
-                  <th class="text-center">Grade</th>
-                  <th>Notice</th>
-                  <th>Package</th>
-                  <th>Status</th>
-                  <th>Applied</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% if (candidates.length === 0) { %>
-                <tr>
-                  <td colspan="10" class="text-center text-muted py-5">
-                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
-                    No candidates found matching your criteria.
-                  </td>
-                </tr>
-                <% } %>
-                <% candidates.forEach((c, i) => { %>
-                <tr class="candidate-row" onclick="window.location='/admin/candidate/<%= c.id %>'" style="cursor:pointer;">
-                  <td onclick="event.stopPropagation()" style="width:36px;">
-                    <input type="checkbox" class="candidate-check form-check-input" value="<%= c.id %>">
-                  </td>
-                  <td class="text-muted small"><%= ((page - 1) * 20) + i + 1 %></td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="avatar-circle">
-                        <%= c.fullName.charAt(0).toUpperCase() %>
-                      </div>
-                      <div>
-                        <div class="fw-semibold small"><%= c.fullName %></div>
-                        <div class="text-muted" style="font-size:11px;"><%= c.email %></div>
-                        <div class="text-muted" style="font-size:11px;"><%= c.contactNumber %></div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge bg-dark" style="font-size:10px;"><%= c.positionApplying %></span></td>
-                  <td class="text-center">
-                    <% if (c.grade) {
-                      const gc = {A:'success',B:'primary',C:'warning',D:'danger'};
-                      const src = c.gradeSource === 'ai' ? '🤖 AI' : '🔑 Keyword';
-                      const tip = `${src} | Score: ${c.gradeScore}\n${c.gradeReason || ''}`;
-                    %>
-                    <span class="badge bg-<%= gc[c.grade]||'secondary' %> px-2"
-                      style="font-size:13px;cursor:help;"
-                      data-bs-toggle="tooltip" data-bs-placement="left"
-                      title="<%= tip.replace(/"/g,'&quot;') %>">
-                      <%= c.grade %>
-                      <% if (c.gradeSource === 'ai') { %><i class="bi bi-stars" style="font-size:10px;"></i><% } %>
-                    </span>
-                    <% } else { %>
-                    <span class="text-muted" style="font-size:11px;">—</span>
-                    <% } %>
-                  </td>
-                  <td><small class="text-muted"><%= c.noticePeriod %></small></td>
-                  <td>
-                    <small>
-                      ₹<%= ((c.currentPackage.fixed||0)+(c.currentPackage.variables||0)+(c.currentPackage.others||0)).toFixed(1) %>L
-                    </small>
-                  </td>
-                  <td>
-                    <% const sColor = { New:'primary', Screening:'info', Shortlisted:'warning', 'Interview Scheduled':'secondary', 'Offer Extended':'dark', Hired:'success', Rejected:'danger' }; %>
-                    <span class="badge bg-<%= sColor[c.status] || 'secondary' %>"><%= c.status %></span>
-                  </td>
-                  <td><small class="text-muted"><%= new Date(c.submittedAt).toLocaleDateString('en-IN') %></small></td>
-                  <td onclick="event.stopPropagation()">
-                    <div class="d-flex gap-1">
-                      <a href="/admin/candidate/<%= c.id %>" class="btn btn-xs btn-outline-primary" title="View">
-                        <i class="bi bi-eye"></i>
-                      </a>
-                      <% if (c.resumeFile) { %>
-                      <a href="/admin/candidate/<%= c.id %>/download" class="btn btn-xs btn-outline-success" title="Download CV">
-                        <i class="bi bi-download"></i>
-                      </a>
-                      <% } %>
-                      <button class="btn btn-xs btn-outline-danger" onclick="deleteCandidate('<%= c.id %>')" title="Delete">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination -->
-          <% if (totalPages > 1) { %>
-          <div class="card-footer d-flex justify-content-center">
-            <nav>
-              <ul class="pagination pagination-sm mb-0">
-                <% for(let p = 1; p <= totalPages; p++) { %>
-                <li class="page-item <%= p === page ? 'active' : '' %>">
-                  <a class="page-link" href="/admin/dashboard?<%= new URLSearchParams({...query, page: p}).toString() %>">
-                    <%= p %>
-                  </a>
-                </li>
-                <% } %>
-              </ul>
-            </nav>
-          </div>
-          <% } %>
         </div>
 
       </div>
     </main>
   </div>
 
-  <!-- Bulk Download Modal -->
-  <div class="modal fade" id="bulkDownloadModal" tabindex="-1" aria-labelledby="bulkDownloadModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="bulkDownloadModalLabel"><i class="bi bi-archive me-2 text-warning"></i>Bulk Download Documents</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p class="text-muted small mb-3">Select the documents to include in the ZIP bundle for <strong><span id="bulkCountLabel">0</span> candidate(s)</strong>:</p>
-          <div class="d-flex flex-column gap-2">
-            <div class="form-check">
-              <input class="form-check-input doc-check" type="checkbox" id="bdResume" value="resume" checked>
-              <label class="form-check-label" for="bdResume">
-                <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Resume
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input doc-check" type="checkbox" id="bdInterview" value="interview" checked>
-              <label class="form-check-label" for="bdInterview">
-                <i class="bi bi-clipboard-check me-1 text-primary"></i>Interview Sheet
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input doc-check" type="checkbox" id="bdDetailForm" value="detail_form" checked>
-              <label class="form-check-label" for="bdDetailForm">
-                <i class="bi bi-person-lines-fill me-1 text-info"></i>Personal Detail Form
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input doc-check" type="checkbox" id="bdTimeline" value="timeline" checked>
-              <label class="form-check-label" for="bdTimeline">
-                <i class="bi bi-clock-history me-1 text-success"></i>Activity History
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-warning btn-sm" onclick="downloadBulk()">
-            <i class="bi bi-download me-1"></i>Download ZIP
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Init Bootstrap tooltips
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-      new bootstrap.Tooltip(el, { html: false });
+    // ── Status Doughnut Chart ─────────────────────────────────────────────────
+    const statusCounts = <%- JSON.stringify(statusCounts) %>;
+    const statusLabels = Object.keys(statusCounts);
+    const statusValues = Object.values(statusCounts);
+    const statusPalette = {
+      'New':                '#0d6efd',
+      'Screening':          '#0dcaf0',
+      'Shortlisted':        '#ffc107',
+      'Interview Scheduled':'#6f42c1',
+      'Offer Extended':     '#fd7e14',
+      'Hired':              '#198754',
+      'Rejected':           '#dc3545'
+    };
+    const statusBg = statusLabels.map(l => statusPalette[l] || '#6c757d');
+
+    new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: statusLabels,
+        datasets: [{ data: statusValues, backgroundColor: statusBg, borderWidth: 2, borderColor: '#1a1a2e' }]
+      },
+      options: {
+        cutout: '62%',
+        plugins: {
+          legend: { position: 'right', labels: { color: '#ccc', font: { size: 11 }, padding: 10 } }
+        },
+        responsive: true,
+        maintainAspectRatio: true
+      }
     });
 
-    function deleteCandidate(id) {
-      if (!confirm('Delete this candidate permanently? This cannot be undone.')) return;
-      fetch(`/admin/candidate/${id}`, { method: 'DELETE' })
-        .then(r => r.json())
-        .then(d => {
-          if (d.success) location.reload();
-          else alert('Delete failed: ' + d.message);
-        });
-    }
+    // ── Position Bar Chart ────────────────────────────────────────────────────
+    const positionCounts = <%- JSON.stringify(positionCounts) %>;
+    const posLabels = positionCounts.map(p => p.position || '(Unspecified)');
+    const posValues = positionCounts.map(p => parseInt(p.count));
 
-    document.getElementById('gradeAllBtn').addEventListener('click', async function() {
-      if (!confirm('Re-grade all candidates based on their resume vs job description match? This may take a moment.')) return;
-      this.disabled = true;
-      this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Grading...';
-      try {
-        const r = await fetch('/admin/candidates/grade-all', { method: 'POST' });
-        const d = await r.json();
-        if (d.success) {
-          this.innerHTML = '<i class="bi bi-check-lg me-1"></i>Done (' + d.updated + ')';
-          setTimeout(() => location.reload(), 800);
-        } else {
-          alert('Grading failed: ' + (d.error || 'Unknown error'));
-          this.disabled = false;
-          this.innerHTML = '<i class="bi bi-stars me-1"></i>Re-grade All';
+    new Chart(document.getElementById('positionChart'), {
+      type: 'bar',
+      data: {
+        labels: posLabels,
+        datasets: [{
+          label: 'Applicants',
+          data: posValues,
+          backgroundColor: 'rgba(212,175,55,.75)',
+          borderColor: '#d4af37',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#aaa', stepSize: 1 }, grid: { color: 'rgba(255,255,255,.06)' } },
+          y: { ticks: { color: '#ccc', font: { size: 11 } }, grid: { display: false } }
         }
-      } catch(e) {
-        alert('Network error');
-        this.disabled = false;
-        this.innerHTML = '<i class="bi bi-stars me-1"></i>Re-grade All';
       }
     });
-
-    // ── Checkbox selection & bulk download ──────────────────────────────────
-
-    document.getElementById('selectAllCandidates').addEventListener('change', function() {
-      document.querySelectorAll('.candidate-check').forEach(cb => cb.checked = this.checked);
-      updateBulkToolbar();
-    });
-
-    document.querySelectorAll('.candidate-check').forEach(cb => {
-      cb.addEventListener('change', updateBulkToolbar);
-    });
-
-    function updateBulkToolbar() {
-      const checked = document.querySelectorAll('.candidate-check:checked');
-      document.getElementById('selectedCount').textContent = checked.length;
-      document.getElementById('bulkToolbar').classList.toggle('d-none', checked.length === 0);
-      // Sync select-all state
-      const total = document.querySelectorAll('.candidate-check').length;
-      const selectAll = document.getElementById('selectAllCandidates');
-      selectAll.indeterminate = checked.length > 0 && checked.length < total;
-      selectAll.checked = checked.length === total && total > 0;
-    }
-
-    function openBulkDownload() {
-      const count = document.querySelectorAll('.candidate-check:checked').length;
-      document.getElementById('bulkCountLabel').textContent = count;
-      new bootstrap.Modal(document.getElementById('bulkDownloadModal')).show();
-    }
-
-    function clearSelection() {
-      document.querySelectorAll('.candidate-check, #selectAllCandidates').forEach(cb => cb.checked = false);
-      document.getElementById('selectAllCandidates').indeterminate = false;
-      updateBulkToolbar();
-    }
-
-    function downloadBulk() {
-      const ids   = [...document.querySelectorAll('.candidate-check:checked')].map(cb => cb.value);
-      const docs  = [...document.querySelectorAll('#bulkDownloadModal .doc-check:checked')].map(cb => cb.value);
-      if (!ids.length  || !docs.length) {
-        alert('Select at least one candidate and one document type.');
-        return;
-      }
-
-      // Use a hidden form to POST — this triggers a file download response
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = '/admin/candidates/bulk-download';
-      ids.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden'; input.name = 'candidateIds[]'; input.value = id;
-        form.appendChild(input);
-      });
-      docs.forEach(doc => {
-        const input = document.createElement('input');
-        input.type = 'hidden'; input.name = 'docs[]'; input.value = doc;
-        form.appendChild(input);
-      });
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
-
-      // Close modal
-      const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDownloadModal'));
-      if (modal) modal.hide();
-    }
   </script>
 </body>
 </html>
-
