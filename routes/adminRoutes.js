@@ -7,6 +7,7 @@ const requisitionController   = require('../controllers/requisitionController');
 const talentAnalystController = require('../controllers/talentAnalystController');
 const interviewController     = require('../controllers/interviewController');
 const timelineController      = require('../controllers/timelineController');
+const downloadController      = require('../controllers/downloadController');
 const { requireAdmin, redirectIfLoggedIn } = require('../middleware/auth');
 
 const path = require('path');
@@ -62,6 +63,10 @@ router.get('/api/stats', requireAdmin, adminController.getStats);
 
 // Excel Export
 router.get('/candidates/export', requireAdmin, adminController.exportCandidates);
+
+// Document Bundle Download (bulk must be before /:id param routes)
+router.post('/candidates/bulk-download', requireAdmin, downloadController.downloadBulk);
+router.get('/candidate/:id/download-bundle', requireAdmin, downloadController.downloadSingle);
 
 // Grading
 router.post('/candidates/grade-all', requireAdmin, adminController.gradeAll);

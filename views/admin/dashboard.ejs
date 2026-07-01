@@ -185,10 +185,24 @@
             <h6 class="mb-0"><i class="bi bi-table me-2"></i>Candidates (<%= total %>)</h6>
             <small class="text-muted">Page <%= page %> of <%= totalPages %></small>
           </div>
+
+          <!-- Bulk Download Toolbar -->
+          <div id="bulkToolbar" class="d-none d-flex align-items-center gap-3 p-2 mx-3 mt-2"
+               style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;">
+            <span class="fw-semibold small"><span id="selectedCount">0</span> selected</span>
+            <button class="btn btn-sm btn-warning" onclick="openBulkDownload()">
+              <i class="bi bi-archive me-1"></i>Download Documents
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="clearSelection()">
+              <i class="bi bi-x me-1"></i>Clear
+            </button>
+          </div>
+
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
               <thead class="table-dark">
                 <tr>
+                  <th style="width:36px;"><input type="checkbox" id="selectAllCandidates" class="form-check-input" title="Select all on this page"></th>
                   <th>#</th>
                   <th>Candidate</th>
                   <th>Position</th>
@@ -203,7 +217,7 @@
               <tbody>
                 <% if (candidates.length === 0) { %>
                 <tr>
-                  <td colspan="9" class="text-center text-muted py-5">
+                  <td colspan="10" class="text-center text-muted py-5">
                     <i class="bi bi-inbox display-6 d-block mb-2"></i>
                     No candidates found matching your criteria.
                   </td>
@@ -211,6 +225,9 @@
                 <% } %>
                 <% candidates.forEach((c, i) => { %>
                 <tr class="candidate-row" onclick="window.location='/admin/candidate/<%= c.id %>'" style="cursor:pointer;">
+                  <td onclick="event.stopPropagation()" style="width:36px;">
+                    <input type="checkbox" class="candidate-check form-check-input" value="<%= c.id %>">
+                  </td>
                   <td class="text-muted small"><%= ((page - 1) * 20) + i + 1 %></td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
@@ -296,6 +313,53 @@
     </main>
   </div>
 
+  <!-- Bulk Download Modal -->
+  <div class="modal fade" id="bulkDownloadModal" tabindex="-1" aria-labelledby="bulkDownloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="bulkDownloadModalLabel"><i class="bi bi-archive me-2 text-warning"></i>Bulk Download Documents</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-3">Select the documents to include in the ZIP bundle for <strong><span id="bulkCountLabel">0</span> candidate(s)</strong>:</p>
+          <div class="d-flex flex-column gap-2">
+            <div class="form-check">
+              <input class="form-check-input doc-check" type="checkbox" id="bdResume" value="resume" checked>
+              <label class="form-check-label" for="bdResume">
+                <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Resume
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input doc-check" type="checkbox" id="bdInterview" value="interview" checked>
+              <label class="form-check-label" for="bdInterview">
+                <i class="bi bi-clipboard-check me-1 text-primary"></i>Interview Sheet
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input doc-check" type="checkbox" id="bdDetailForm" value="detail_form" checked>
+              <label class="form-check-label" for="bdDetailForm">
+                <i class="bi bi-person-lines-fill me-1 text-info"></i>Personal Detail Form
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input doc-check" type="checkbox" id="bdTimeline" value="timeline" checked>
+              <label class="form-check-label" for="bdTimeline">
+                <i class="bi bi-clock-history me-1 text-success"></i>Activity History
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-warning btn-sm" onclick="downloadBulk()">
+            <i class="bi bi-download me-1"></i>Download ZIP
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Init Bootstrap tooltips
@@ -334,6 +398,71 @@
         this.innerHTML = '<i class="bi bi-stars me-1"></i>Re-grade All';
       }
     });
+
+    // ── Checkbox selection & bulk download ──────────────────────────────────
+
+    document.getElementById('selectAllCandidates').addEventListener('change', function() {
+      document.querySelectorAll('.candidate-check').forEach(cb => cb.checked = this.checked);
+      updateBulkToolbar();
+    });
+
+    document.querySelectorAll('.candidate-check').forEach(cb => {
+      cb.addEventListener('change', updateBulkToolbar);
+    });
+
+    function updateBulkToolbar() {
+      const checked = document.querySelectorAll('.candidate-check:checked');
+      document.getElementById('selectedCount').textContent = checked.length;
+      document.getElementById('bulkToolbar').classList.toggle('d-none', checked.length === 0);
+      // Sync select-all state
+      const total = document.querySelectorAll('.candidate-check').length;
+      const selectAll = document.getElementById('selectAllCandidates');
+      selectAll.indeterminate = checked.length > 0 && checked.length < total;
+      selectAll.checked = checked.length === total && total > 0;
+    }
+
+    function openBulkDownload() {
+      const count = document.querySelectorAll('.candidate-check:checked').length;
+      document.getElementById('bulkCountLabel').textContent = count;
+      new bootstrap.Modal(document.getElementById('bulkDownloadModal')).show();
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.candidate-check, #selectAllCandidates').forEach(cb => cb.checked = false);
+      document.getElementById('selectAllCandidates').indeterminate = false;
+      updateBulkToolbar();
+    }
+
+    function downloadBulk() {
+      const ids   = [...document.querySelectorAll('.candidate-check:checked')].map(cb => cb.value);
+      const docs  = [...document.querySelectorAll('#bulkDownloadModal .doc-check:checked')].map(cb => cb.value);
+      if (!ids.length  || !docs.length) {
+        alert('Select at least one candidate and one document type.');
+        return;
+      }
+
+      // Use a hidden form to POST — this triggers a file download response
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/admin/candidates/bulk-download';
+      ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden'; input.name = 'candidateIds[]'; input.value = id;
+        form.appendChild(input);
+      });
+      docs.forEach(doc => {
+        const input = document.createElement('input');
+        input.type = 'hidden'; input.name = 'docs[]'; input.value = doc;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('bulkDownloadModal'));
+      if (modal) modal.hide();
+    }
   </script>
 </body>
 </html>

@@ -99,6 +99,9 @@
         <a href="/admin/candidate/<%= candidate.id %>/timeline" class="btn btn-sm btn-outline-info">
           <i class="bi bi-clock-history me-1"></i>Activity History
         </a>
+        <button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#downloadBundleModal">
+          <i class="bi bi-archive me-1"></i>Download Documents
+        </button>
         <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate('<%= candidate.id %>')">
           <i class="bi bi-trash me-1"></i>Delete
         </button>
@@ -547,6 +550,54 @@
 </div>
 <% } %>
 
+<!-- Download Documents Bundle Modal -->
+<div class="modal fade" id="downloadBundleModal" tabindex="-1" aria-labelledby="downloadBundleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="downloadBundleModalLabel"><i class="bi bi-archive me-2 text-warning"></i>Download Document Bundle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">Select the documents to include in the ZIP bundle for <strong><%= candidate.fullName %></strong>:</p>
+        <div class="d-flex flex-column gap-2">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="dlResume" value="resume" <%= candidate.resumeFile ? 'checked' : '' %>>
+            <label class="form-check-label" for="dlResume">
+              <i class="bi bi-file-earmark-pdf me-1 text-danger"></i>Resume
+              <% if (!candidate.resumeFile) { %><span class="text-muted small">(not uploaded)</span><% } %>
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="dlInterview" value="interview" checked>
+            <label class="form-check-label" for="dlInterview">
+              <i class="bi bi-clipboard-check me-1 text-primary"></i>Interview Sheet
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="dlDetailForm" value="detail_form" checked>
+            <label class="form-check-label" for="dlDetailForm">
+              <i class="bi bi-person-lines-fill me-1 text-info"></i>Personal Detail Form
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="dlTimeline" value="timeline" checked>
+            <label class="form-check-label" for="dlTimeline">
+              <i class="bi bi-clock-history me-1 text-success"></i>Activity History
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning btn-sm" onclick="doSingleDownload()">
+          <i class="bi bi-download me-1"></i>Download ZIP
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   // â”€â”€ Resume Preview â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -659,6 +710,20 @@
       if (el) el.innerHTML = `<div class="alert alert-danger py-2 small mb-0">Network error: ${e.message}</div>`;
       if (btn) { btn.disabled = false; btn.innerHTML = '<i class="bi bi-send me-1"></i>Send Detail Form'; }
     }
+  }
+
+  // ── Document Bundle Download ──────────────────────────────────────────────
+  function doSingleDownload() {
+    const checkboxes = document.querySelectorAll('#downloadBundleModal input[type=checkbox]:checked');
+    const docs = [...checkboxes].map(cb => cb.value);
+    if (!docs.length) { alert('Please select at least one document type.'); return; }
+    const qs = docs.join(',');
+    window.location = '/admin/candidate/<%= candidate.id %>/download-bundle?docs=' + encodeURIComponent(qs);
+    // Close modal after short delay
+    setTimeout(() => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('downloadBundleModal'));
+      if (modal) modal.hide();
+    }, 500);
   }
 </script>
 </body>
